@@ -1,0 +1,1204 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>暗記アプリ（GitHub連携版）</title>
+  
+  <!-- Excel読み込み用ライブラリ (SheetJS) -->
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+
+  <style>
+    /* --- style.css --- */
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, sans-serif;
+      background: #f5f5f5;
+      touch-action: none;
+    }
+
+    #app {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      height: 100vh;
+      width: 100vw;
+      padding-top: 20px;
+      box-sizing: border-box;
+      position: relative;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    /* --- 戻るボタン --- */
+    .back-button-container {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      z-index: 100;
+    }
+    .back-btn {
+      background: rgba(255, 255, 255, 0.9);
+      border: 1px solid #ccc;
+      border-radius: 20px;
+      padding: 8px 16px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      font-weight: bold;
+      color: #333;
+    }
+
+    /* --- カードのデザイン --- */
+    .card {
+      background: white;
+      width: 85%;
+      max-width: 400px;
+      height: auto;
+      max-height: 75vh; 
+      min-height: 200px;
+      padding: 32px 24px;
+      border-radius: 20px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+      cursor: pointer;
+      touch-action: none;
+      user-select: none;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      position: relative;
+      margin-top: 5vh;
+      overflow-y: auto;
+    }
+
+    .question {
+      font-size: 1.4rem;
+      font-weight: bold;
+      margin-bottom: 24px;
+      text-align: left;
+      line-height: 1.5;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+
+    .answer {
+      font-size: 1.1rem;
+      color: #444;
+      border-top: 2px solid #f0f0f0;
+      padding-top: 20px;
+      text-align: left;
+      line-height: 1.6;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+    
+    .card-stats-debug {
+      font-size: 0.75rem;
+      color: #aaa;
+      margin-bottom: 10px;
+      text-align: right;
+      font-family: monospace;
+    }
+
+    /* --- フォルダ選択画面 --- */
+    .path-browser {
+      width: 100%;
+      height: 100%;
+      overflow-y: auto;
+      padding: 60px 20px 20px 20px;
+      box-sizing: border-box;
+      padding-bottom: 80px;
+    }
+
+    .folder-row {
+      background: white;
+      margin: 6px 0;
+      border-bottom: 1px solid #eee;
+      border-radius: 8px;
+      transition: background 0.2s;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: relative;
+    }
+
+    .folder-info {
+      flex-grow: 1;
+      padding: 12px;
+      cursor: pointer;
+    }
+
+    .folder-row:active {
+      background: #f0f0f0;
+    }
+
+    .kebab-container {
+      position: relative;
+      height: 100%;
+      display: flex;
+      align-items: center;
+    }
+
+    .kebab-btn {
+      font-size: 1.2rem;
+      padding: 10px 15px;
+      color: #888;
+      cursor: pointer;
+      line-height: 1;
+    }
+    
+    .menu-popup {
+      position: absolute;
+      top: 100%;
+      right: 0;
+      background: white;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      z-index: 2000;
+      min-width: 120px;
+      display: none; 
+      overflow: hidden;
+    }
+
+    .menu-popup.show {
+      display: block;
+    }
+
+    .menu-item {
+      padding: 12px 16px;
+      font-size: 0.95rem;
+      color: #333;
+      cursor: pointer;
+      border-bottom: 1px solid #f5f5f5;
+    }
+    .menu-item:last-child {
+      border-bottom: none;
+    }
+
+    /* --- 問題一覧画面 --- */
+    .card-list-view {
+      width: 100%;
+      height: 100%;
+      overflow-y: auto;
+      padding: 60px 20px 20px 20px;
+      box-sizing: border-box;
+      background: white;
+    }
+    
+    .list-header {
+      font-weight: bold;
+      margin-bottom: 20px;
+      font-size: 1.2rem;
+      border-bottom: 2px solid #eee;
+      padding-bottom: 10px;
+    }
+
+    .list-item {
+      border-bottom: 1px solid #eee;
+      padding: 12px 0;
+    }
+    
+    .list-q {
+      font-weight: bold;
+      margin-bottom: 4px;
+      color: #333;
+    }
+    .list-a {
+      color: #666;
+      font-size: 0.9rem;
+    }
+
+    html, body { height: 100%; margin: 0; overscroll-behavior: none; touch-action: none; }
+    body { overflow: hidden; }
+
+    /* ツールバー */
+    #toolbar {
+        position: fixed;
+        top: 10px;
+        right: 10px;
+        z-index: 1000;
+        display: none;
+        gap: 10px;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+    }
+
+    .tool-btn {
+        background: rgba(255, 255, 255, 0.95);
+        padding: 6px 10px;
+        border-radius: 6px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        font-size: 0.8rem;
+        cursor: pointer;
+        border: 1px solid #ddd;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        white-space: nowrap;
+    }
+
+    /* モーダル共通 */
+    .modal-overlay {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.5); z-index: 3000;
+      display: flex; justify-content: center; align-items: center;
+    }
+    .modal-content {
+      background: white; padding: 20px; border-radius: 12px;
+      width: 90%; max-width: 500px; max-height: 85vh; overflow-y: auto;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+    }
+    .modal-title { font-weight: bold; font-size: 1.2rem; margin-bottom: 15px; }
+    
+    .config-label {
+      display: block; margin-bottom: 15px; font-weight: bold; font-size: 0.95rem;
+    }
+    .config-label input {
+      display: block; width: 100%; padding: 8px; margin-top: 5px;
+      box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; font-size: 1rem;
+    }
+    .config-desc { font-weight: normal; font-size: 0.8rem; color: #666; margin-top: 3px; }
+
+    .modal-actions {
+      display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;
+    }
+    .btn-primary {
+      background: #333; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer;
+    }
+    .btn-secondary {
+      background: #eee; color: #333; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer;
+    }
+    .btn-danger {
+      background: #d32f2f; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer;
+    }
+    
+    /* Sync Modal Styles */
+    .sync-area {
+        border: 1px dashed #ccc;
+        padding: 20px;
+        margin-bottom: 15px;
+        text-align: center;
+        border-radius: 8px;
+        background: #fafafa;
+    }
+    .sync-desc {
+        font-size: 0.85rem;
+        color: #666;
+        margin-bottom: 10px;
+    }
+    .gh-config-section {
+        margin-top: 20px;
+        padding-top: 20px;
+        border-top: 2px solid #eee;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ツールバー -->
+  <div id="toolbar">
+    <div class="tool-btn" id="configBtn">🔧 設定</div>
+    <div class="tool-btn" id="syncBtn">🔄 同期</div>
+    <div class="tool-btn">
+      <span style="font-weight:bold; margin-right:5px;">Excel:</span>
+      <input type="file" id="tsvInput" accept=".xlsx, .xls" style="width:170px;" />
+    </div>
+  </div>
+
+  <main id="app"></main>
+
+  <!-- 設定モーダル -->
+  <div id="configModal" class="modal-overlay hidden">
+    <div class="modal-content">
+      <div class="modal-title">アプリ設定</div>
+      
+      <div style="font-weight:bold; margin-top:15px; border-bottom:1px solid #eee;">学習フロー制御</div>
+      <label class="config-label">
+        学習中の同時進行数 (Learning Threshold)
+        <input type="number" id="cfgLearningThreshold" min="1" max="100">
+      </label>
+      <label class="config-label">
+        推定誤答数の許容上限 (Likely Wrong Limit)
+        <input type="number" id="cfgLikelyWrongLimit" min="0" max="50">
+      </label>
+
+      <div style="font-weight:bold; margin-top:15px; border-bottom:1px solid #eee;">モデルパラメータ (全体)</div>
+      <label class="config-label">
+        Global Beta (忘却速度)
+        <input type="number" id="cfgGlobalBeta" step="0.01" min="0.01">
+        <div class="config-desc">値が大きいほど早く忘却します。</div>
+      </label>
+
+      <!-- GitHub設定セクション -->
+      <div class="gh-config-section">
+        <div style="font-weight:bold; margin-bottom:10px;">GitHub連携設定</div>
+        <div style="font-size:0.8rem; color:#d32f2f; margin-bottom:10px;">
+          ※トークンはブラウザに保存されます。信頼できる端末でのみ入力してください。
+        </div>
+        
+        <label class="config-label">
+          GitHub User Name
+          <input type="text" id="cfgGhUser" placeholder="ex: your-username">
+        </label>
+        <label class="config-label">
+          Repository Name
+          <input type="text" id="cfgGhRepo" placeholder="ex: anki-app-data">
+        </label>
+        <label class="config-label">
+          Personal Access Token
+          <input type="password" id="cfgGhToken" placeholder="ghp_xxxxxxxxxxxx...">
+          <div class="config-desc">権限スコープ <code>repo</code> が必要です。</div>
+        </label>
+      </div>
+  
+      <div class="modal-actions">
+        <button class="btn-secondary" id="configCancel">キャンセル</button>
+        <button class="btn-primary" id="configSave">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 同期（MCMC連携）モーダル -->
+  <div id="syncModal" class="modal-overlay hidden">
+    <div class="modal-content">
+      <div class="modal-title">データ同期 (GitHub API)</div>
+      <div style="margin-bottom:15px; font-size:0.9rem; color:#666;">
+        GitHubリポジトリと直接通信を行います。設定画面でリポジトリ情報とトークンを設定してください。
+      </div>
+      
+      <div class="sync-area">
+        <div style="font-weight:bold; margin-bottom:5px;">1. 学習履歴のアップロード</div>
+        <div class="sync-desc">
+          現在の学習履歴をGitHubリポジトリの <code>data/history.json</code> に直接保存(Commit)します。
+        </div>
+        <button class="btn-primary" id="btnUploadHistory">履歴をGitHubへ保存</button>
+      </div>
+
+      <div class="sync-area">
+        <div style="font-weight:bold; margin-bottom:5px;">2. パラメータのインポート</div>
+        <div class="sync-desc">
+          GitHubリポジトリの <code>data/parameters.json</code> を取得し、最新のモデルパラメータを反映します。
+        </div>
+        <button class="btn-secondary" id="btnImportParams">パラメータを読み込む</button>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-secondary" id="syncClose">閉じる</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* --- 1. 定数・パラメータ --- */
+    const DEFAULT_CONFIG = {
+      GLOBAL_BETA: 0.5,
+      LEARNING_THRESHOLD: 5,
+      LIKELY_WRONG_LIMIT: 5,
+      MASTER_PROB_THRESHOLD: 0.9,
+      LEARNING_PROB_THRESHOLD: 0.8,
+      CONSECUTIVE_SUCCESS_REQUIRED: 2,
+      // GitHub Config
+      GH_USER: "",
+      GH_REPO: "",
+      GH_TOKEN: ""
+    };
+
+    let CONFIG = { ...DEFAULT_CONFIG };
+    try {
+      const savedConfig = localStorage.getItem("ankiAppConfig");
+      if (savedConfig) {
+        const parsed = JSON.parse(savedConfig);
+        // 数値変換
+        if (parsed.GLOBAL_BETA) parsed.GLOBAL_BETA = Number(parsed.GLOBAL_BETA);
+        if (parsed.LEARNING_THRESHOLD) parsed.LEARNING_THRESHOLD = Number(parsed.LEARNING_THRESHOLD);
+        if (parsed.LIKELY_WRONG_LIMIT !== undefined) parsed.LIKELY_WRONG_LIMIT = Number(parsed.LIKELY_WRONG_LIMIT);
+        
+        // GitHub設定の読み込み
+        if (parsed.GH_USER) CONFIG.GH_USER = parsed.GH_USER;
+        if (parsed.GH_REPO) CONFIG.GH_REPO = parsed.GH_REPO;
+        if (parsed.GH_TOKEN) CONFIG.GH_TOKEN = parsed.GH_TOKEN;
+
+        CONFIG = { ...CONFIG, ...parsed };
+      }
+    } catch(e) { console.error("Config load failed", e); }
+
+    function saveConfig() {
+      localStorage.setItem("ankiAppConfig", JSON.stringify(CONFIG));
+    }
+
+    /* --- GitHub API Helper --- */
+    // Unicode文字列をBase64にエンコードする（日本語対応）
+    function utf8_to_b64(str) {
+      return window.btoa(unescape(encodeURIComponent(str)));
+    }
+    
+    // Base64をUnicode文字列にデコードする（日本語対応）
+    function b64_to_utf8(str) {
+      return decodeURIComponent(escape(window.atob(str)));
+    }
+
+    async function githubApiRequest(method, path, body = null) {
+      if (!CONFIG.GH_USER || !CONFIG.GH_REPO || !CONFIG.GH_TOKEN) {
+        throw new Error("GitHub設定（User, Repo, Token）が不足しています。設定画面を確認してください。");
+      }
+      
+      const url = `https://api.github.com/repos/${CONFIG.GH_USER}/${CONFIG.GH_REPO}/contents/${path}`;
+      const headers = {
+        "Authorization": `token ${CONFIG.GH_TOKEN}`,
+        "Accept": "application/vnd.github.v3+json",
+        "Content-Type": "application/json"
+      };
+      
+      const options = { method, headers };
+      if (body) options.body = JSON.stringify(body);
+
+      const res = await fetch(url, options);
+      if (!res.ok) {
+        const errJson = await res.json();
+        throw new Error(`GitHub API Error: ${res.status} ${errJson.message}`);
+      }
+      return res.json();
+    }
+
+    /* --- 2. データ構造 --- */
+    class Card {
+      constructor({ id, numericId, path, question, answer, note = "" }) {
+        this.id = id;             // UUID
+        this.numericId = numericId; // Stan用整数ID
+        this.path = path;
+        this.question = question;
+        this.answer = answer;
+        this.note = note;
+      }
+    }
+
+    class CardStats {
+      constructor(cardId) {
+        this.cardId = cardId;
+        this.state = "new"; 
+        this.lastReviewedAt = null; 
+        this.estimatedP = 0.5;
+        this.consecutiveHighP = 0;
+        this.reviewCount = 0;       
+        this.d = 0.0; // Difficulty
+        this.a = 1.0; // Discrimination
+      }
+    }
+
+    /* --- 3. データベース設定 (IndexedDB) --- */
+    const DB_NAME = "ankiApp";
+    const DB_VERSION = 4; 
+
+    function openDB() {
+      return new Promise((resolve, reject) => {
+        const request = indexedDB.open(DB_NAME, DB_VERSION);
+        request.onupgradeneeded = (e) => {
+          const db = e.target.result;
+          if (!db.objectStoreNames.contains("cards")) {
+            db.createObjectStore("cards", { keyPath: "id" });
+          }
+          if (!db.objectStoreNames.contains("reviews")) {
+            const reviewStore = db.createObjectStore("reviews", { keyPath: "id", autoIncrement: true });
+            reviewStore.createIndex("cardId", "cardId", { unique: false });
+          }
+          if (!db.objectStoreNames.contains("cardStats")) {
+            db.createObjectStore("cardStats", { keyPath: "cardId" });
+          }
+          if (!db.objectStoreNames.contains("history")) {
+            const historyStore = db.createObjectStore("history", { keyPath: "id", autoIncrement: true });
+            historyStore.createIndex("timestamp", "timestamp", { unique: false });
+          }
+        };
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+      });
+    }
+
+    async function saveCards(cards) {
+      const db = await openDB();
+      const tx = db.transaction("cards", "readwrite");
+      const store = tx.objectStore("cards");
+      const allCards = await new Promise((resolve) => {
+          store.getAll().onsuccess = (e) => resolve(e.target.result);
+      });
+      let maxNumId = 0;
+      allCards.forEach(c => { if(c.numericId > maxNumId) maxNumId = c.numericId; });
+
+      const promises = cards.map(card => {
+        return new Promise((resolve, reject) => {
+          if (!card.numericId) {
+             maxNumId++;
+             card.numericId = maxNumId;
+          }
+          const req = store.put(card);
+          req.onsuccess = () => resolve();
+          req.onerror = () => reject(req.error);
+        });
+      });
+      await Promise.all(promises);
+    }
+
+    async function loadCards() {
+      const db = await openDB();
+      const tx = db.transaction("cards", "readwrite");
+      const store = tx.objectStore("cards");
+      const cards = await new Promise((resolve, reject) => {
+        const req = store.getAll();
+        req.onsuccess = () => resolve(req.result);
+        req.onerror = () => reject(req.error);
+      });
+      let maxNumId = 0;
+      cards.forEach(c => { if(c.numericId > maxNumId) maxNumId = c.numericId; });
+      cards.forEach(c => {
+          if (!c.numericId) {
+              maxNumId++;
+              c.numericId = maxNumId;
+              store.put(c);
+          }
+      });
+      return cards;
+    }
+
+    async function saveStats(stats) {
+        const db = await openDB();
+        db.transaction("cardStats", "readwrite").objectStore("cardStats").put(stats);
+    }
+
+    async function recordHistory(entry) {
+        const db = await openDB();
+        db.transaction("history", "readwrite").objectStore("history").add(entry);
+    }
+
+    async function getAllHistory() {
+        const db = await openDB();
+        return new Promise((resolve) => {
+            const req = db.transaction("history", "readonly").objectStore("history").getAll();
+            req.onsuccess = () => resolve(req.result);
+        });
+    }
+
+    /* --- 4. ロジックコア --- */
+    function sigmoid(x) {
+      return 1.0 / (1.0 + Math.exp(-x));
+    }
+
+    function calculateP(stats, now) {
+      const k = stats.reviewCount || 0;
+      let dt = 0;
+      if (stats.lastReviewedAt) {
+          dt = (now - stats.lastReviewedAt) / 60000; 
+      }
+      if (dt < 0) dt = 0;
+
+      const S = Math.log(1 + k) - CONFIG.GLOBAL_BETA * Math.log(1 + dt);
+      const a = (stats.a !== undefined) ? stats.a : 1.0;
+      const d = (stats.d !== undefined) ? stats.d : 0.0;
+      
+      const logit = a * S - d;
+      return sigmoid(logit);
+    }
+
+    class Scheduler {
+      constructor() {
+        this.statsMap = new Map();
+        this.cardsMap = new Map();
+      }
+
+      async init(cards) {
+        this.cardsMap.clear();
+        this.statsMap.clear();
+        cards.forEach(c => this.cardsMap.set(c.id, c));
+
+        const db = await openDB();
+        const tx = db.transaction("cardStats", "readonly");
+        const store = tx.objectStore("cardStats");
+        const allStats = await new Promise(r => { store.getAll().onsuccess = e => r(e.target.result); });
+        
+        allStats.forEach(s => this.statsMap.set(s.cardId, s));
+        cards.forEach(c => {
+            if (!this.statsMap.has(c.id)) {
+                this.statsMap.set(c.id, new CardStats(c.id));
+            }
+        });
+      }
+
+      async recordResult(cardId, outcome) {
+        const now = Date.now();
+        const stats = this.statsMap.get(cardId);
+        const card = this.cardsMap.get(cardId);
+        
+        const k = stats.reviewCount || 0;
+        let dt_min = 0;
+        if (stats.lastReviewedAt) {
+            dt_min = (now - stats.lastReviewedAt) / 60000;
+        }
+        const log_k = Math.log(1 + k);
+        const log_t = Math.log(1 + dt_min);
+
+        const historyEntry = {
+            cardId: cardId,
+            problemId: card.numericId,
+            isCorrect: (outcome === "correct" ? 1 : 0),
+            timestamp: Math.floor(now / 1000), 
+            prevTimestamp: stats.lastReviewedAt ? Math.floor(stats.lastReviewedAt / 1000) : null,
+            log_k: log_k,
+            log_t: log_t,
+            accumulatedCount: k,
+            elapsedMinutes: dt_min
+        };
+        await recordHistory(historyEntry);
+
+        stats.reviewCount = k + 1;
+        stats.lastReviewedAt = now;
+        
+        const p = calculateP(stats, now);
+        stats.estimatedP = p;
+
+        if (stats.state === "new") {
+          stats.state = "learning";
+          stats.consecutiveHighP = 0;
+        }
+        if (stats.state === "learning") {
+          if (outcome === "correct" && p >= CONFIG.MASTER_PROB_THRESHOLD) {
+            stats.consecutiveHighP++;
+          } else {
+            stats.consecutiveHighP = 0;
+          }
+          if (stats.consecutiveHighP >= CONFIG.CONSECUTIVE_SUCCESS_REQUIRED) {
+            stats.state = "mastered";
+            stats.consecutiveHighP = 0;
+          }
+        } else if (stats.state === "mastered") {
+           if (p <= CONFIG.LEARNING_PROB_THRESHOLD) {
+             stats.state = "learning";
+             stats.consecutiveHighP = 0;
+           }
+        }
+        await saveStats(stats);
+      }
+
+      selectNextCard() {
+        const now = Date.now();
+        const statsList = Array.from(this.statsMap.values());
+        statsList.forEach(s => {
+            if (s.state !== "new") s.estimatedP = calculateP(s, now);
+        });
+
+        if (statsList.length === 0) return null;
+
+        const newCards = statsList.filter(s => s.state === "new");
+        const learningCards = statsList.filter(s => s.state === "learning");
+        const masteredCards = statsList.filter(s => s.state === "mastered");
+
+        const degradable = masteredCards.filter(s => s.estimatedP <= CONFIG.LEARNING_PROB_THRESHOLD);
+        degradable.forEach(s => {
+             s.state = "learning"; 
+             learningCards.push(s);
+        });
+
+        const likelyWrong = learningCards.filter(s => Math.random() > s.estimatedP);
+        
+        if (likelyWrong.length < CONFIG.LIKELY_WRONG_LIMIT) {
+             if (newCards.length > 0) return this.pickRandom(newCards);
+        }
+
+        if (likelyWrong.length > 0) return this.pickRandom(likelyWrong);
+        if (learningCards.length > 0) return this.pickRandom(learningCards);
+        if (newCards.length > 0) return this.pickRandom(newCards);
+        
+        if (masteredCards.length > 0) {
+            masteredCards.sort((a,b) => a.estimatedP - b.estimatedP);
+            const candidates = masteredCards.slice(0, Math.min(5, masteredCards.length));
+            return this.pickRandom(candidates);
+        }
+        return null;
+      }
+
+      pickRandom(list) {
+        const idx = Math.floor(Math.random() * list.length);
+        return this.cardsMap.get(list[idx].cardId);
+      }
+      
+      getStats(cardId) {
+        return this.statsMap.get(cardId);
+      }
+    }
+
+    /* --- 5. ビュー制御 --- */
+    const appEl = document.getElementById("app");
+    const toolbarEl = document.getElementById("toolbar");
+
+    function setToolbarVisibility(visible) {
+      toolbarEl.style.display = visible ? "flex" : "none";
+    }
+
+    function createBackButton(onClick) {
+      const container = document.createElement("div");
+      container.className = "back-button-container";
+      const btn = document.createElement("button");
+      btn.className = "back-btn";
+      btn.textContent = "← 中断して戻る";
+      btn.addEventListener("click", onClick);
+      container.appendChild(btn);
+      return container;
+    }
+
+    function createCardView(card, stats, { onSwipe }) {
+      const cardEl = document.createElement("div");
+      cardEl.className = "card";
+
+      const debugEl = document.createElement("div");
+      debugEl.className = "card-stats-debug";
+      debugEl.innerHTML = `
+        ID: ${card.numericId}<br>
+        State: <b>${stats.state}</b> (k=${stats.reviewCount})<br>
+        Est. P: ${(stats.estimatedP * 100).toFixed(1)}%<br>
+        (d=${stats.d.toFixed(2)}, a=${stats.a.toFixed(2)})
+      `;
+      cardEl.appendChild(debugEl);
+
+      const questionEl = document.createElement("div");
+      questionEl.className = "question";
+      questionEl.textContent = card.question;
+
+      const answerEl = document.createElement("div");
+      answerEl.className = "answer hidden";
+      answerEl.textContent = card.answer;
+      
+      if (card.note) {
+        const noteEl = document.createElement("div");
+        noteEl.style.fontSize = "0.8rem";
+        noteEl.style.color = "#888";
+        noteEl.style.marginTop = "10px";
+        noteEl.textContent = card.note;
+        answerEl.appendChild(noteEl);
+      }
+      
+      const guideEl = document.createElement("div");
+      guideEl.style.marginTop = "auto";
+      guideEl.style.paddingTop = "20px";
+      guideEl.style.fontSize = "0.8rem";
+      guideEl.style.color = "#ccc";
+      guideEl.style.textAlign = "center";
+      guideEl.textContent = "タップで答えを表示 / 左右スワイプで回答";
+      answerEl.appendChild(guideEl);
+
+      cardEl.append(questionEl, answerEl);
+      cardEl.addEventListener("click", () => answerEl.classList.toggle("hidden"));
+
+      let startX = null;
+      let startY = null;
+      cardEl.addEventListener("pointerdown", (e) => {
+        startX = e.clientX;
+        startY = e.clientY;
+        cardEl.setPointerCapture(e.pointerId);
+      });
+      cardEl.addEventListener("pointerup", (e) => {
+        if (startX === null) return;
+        const deltaX = e.clientX - startX;
+        const deltaY = e.clientY - startY;
+        const threshold = 60;
+        
+        if (Math.abs(deltaX) > threshold && Math.abs(deltaY) < 60) {
+          if (deltaX > 0) onSwipe("correct"); 
+          else onSwipe("incorrect");
+        }
+        startX = null;
+        startY = null;
+      });
+      return cardEl;
+    }
+
+    /* --- Path Browser & List View --- */
+    function createPathBrowser(tree, handlers) {
+      const container = document.createElement("div");
+      container.className = "path-browser";
+      // ... (省略なし、既存機能維持)
+      function renderNode(node, depth = 0) {
+        const wrapper = document.createElement("div");
+        for (const key of Object.keys(node)) {
+          if (key === "__cards__") continue;
+          const row = document.createElement("div");
+          row.className = "folder-row";
+          
+          const infoDiv = document.createElement("div");
+          infoDiv.className = "folder-info";
+          infoDiv.textContent = key;
+          infoDiv.style.paddingLeft = `${(depth * 20) + 10}px`;
+          
+          const childCards = collectCards(node[key]);
+          const countSpan = document.createElement("span");
+          countSpan.style.float = "right";
+          countSpan.style.marginRight = "5px";
+          countSpan.style.color = "#999";
+          countSpan.style.fontSize = "0.9em";
+          countSpan.textContent = `${childCards.length}問`;
+          infoDiv.appendChild(countSpan);
+          
+          infoDiv.addEventListener("click", () => {
+            if (childCards.length === 0) return;
+            handlers.onPlay(childCards);
+          });
+          
+          const kebabContainer = document.createElement("div");
+          kebabContainer.className = "kebab-container";
+          const kebabBtn = document.createElement("div");
+          kebabBtn.className = "kebab-btn";
+          kebabBtn.textContent = "︙";
+          
+          const menuPopup = document.createElement("div");
+          menuPopup.className = "menu-popup";
+          
+          const playItem = document.createElement("div");
+          playItem.className = "menu-item";
+          playItem.textContent = "学習開始";
+          playItem.addEventListener("click", (e) => {
+            e.stopPropagation();
+            handlers.onPlay(childCards);
+            closeAllMenus();
+          });
+          
+          const listItem = document.createElement("div");
+          listItem.className = "menu-item";
+          listItem.textContent = "問題一覧";
+          listItem.addEventListener("click", (e) => {
+            e.stopPropagation();
+            handlers.onList(childCards, key);
+            closeAllMenus();
+          });
+          
+          menuPopup.append(playItem, listItem);
+          kebabContainer.append(kebabBtn, menuPopup);
+          
+          kebabBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            const isOpen = menuPopup.classList.contains("show");
+            closeAllMenus();
+            if (!isOpen) menuPopup.classList.add("show");
+          });
+          
+          row.append(infoDiv, kebabContainer);
+          wrapper.appendChild(row);
+          wrapper.appendChild(renderNode(node[key], depth + 1));
+        }
+        return wrapper;
+      }
+      container.appendChild(renderNode(tree));
+      return container;
+    }
+
+    function closeAllMenus() {
+      document.querySelectorAll(".menu-popup.show").forEach(el => el.classList.remove("show"));
+    }
+    document.addEventListener("click", () => closeAllMenus());
+
+    function buildPathTree(cards) {
+      const root = {};
+      for (const card of cards) {
+        const parts = card.path.split("/");
+        let node = root;
+        for (const part of parts) {
+          if (!node[part]) node[part] = {};
+          node = node[part];
+        }
+        if (!node.__cards__) node.__cards__ = [];
+        node.__cards__.push(card);
+      }
+      return root;
+    }
+
+    function collectCards(node) {
+      let result = [];
+      if (node.__cards__) result = result.concat(node.__cards__);
+      for (const key of Object.keys(node)) {
+        if (key !== "__cards__") result = result.concat(collectCards(node[key]));
+      }
+      return result;
+    }
+
+    async function importXLSX(file, path) {
+      const data = await file.arrayBuffer();
+      const workbook = XLSX.read(data);
+      const firstSheetName = workbook.SheetNames[0];
+      const worksheet = workbook.Sheets[firstSheetName];
+      const rows = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+      const dataRows = rows.length > 1 ? rows.slice(1) : [];
+      
+      const cards = dataRows
+        .filter(row => row.length > 0 && row[0])
+        .map((row, index) => {
+          const question = row[0] ? String(row[0]) : "";
+          const answer = row[1] ? String(row[1]) : "";
+          const note = row[2] ? String(row[2]) : "";
+          return new Card({
+            id: `${path}-${index}-${crypto.randomUUID()}`,
+            numericId: null, // saveCardsで採番
+            path,
+            question,
+            answer,
+            note
+          });
+        });
+      await saveCards(cards);
+      return cards;
+    }
+
+    let firstLaunch = false;
+
+    async function showPathSelection() {
+      setToolbarVisibility(!firstLaunch);
+      firstLaunch = false;
+      const cards = await loadCards();
+      appEl.innerHTML = "";
+
+      if (cards.length === 0) {
+        const msg = document.createElement("div");
+        msg.textContent = "問題がありません。右上のボタンからExcelファイルをインポートしてください。";
+        msg.style.padding = "40px 20px";
+        msg.style.textAlign = "center";
+        appEl.appendChild(msg);
+        return;
+      }
+
+      const tree = buildPathTree(cards);
+      const browser = createPathBrowser(tree, {
+        onPlay: (selectedCards) => startSmartQuiz(selectedCards),
+        onList: (selectedCards, folderName) => showCardList(selectedCards, folderName)
+      });
+      appEl.appendChild(browser);
+    }
+
+    function showCardList(cards, title) {
+      setToolbarVisibility(false);
+      appEl.innerHTML = "";
+      appEl.appendChild(createBackButton(() => showPathSelection()));
+
+      const container = document.createElement("div");
+      container.className = "card-list-view";
+      const header = document.createElement("div");
+      header.className = "list-header";
+      header.textContent = `${title} (${cards.length}問)`;
+      container.appendChild(header);
+
+      cards.forEach((card, i) => {
+        const item = document.createElement("div");
+        item.className = "list-item";
+        const qDiv = document.createElement("div");
+        qDiv.className = "list-q";
+        qDiv.textContent = `Q${i+1} [ID:${card.numericId}] ${card.question}`;
+        const aDiv = document.createElement("div");
+        aDiv.className = "list-a";
+        aDiv.textContent = `A. ${card.answer}`;
+        item.appendChild(qDiv);
+        item.appendChild(aDiv);
+        container.appendChild(item);
+      });
+      appEl.appendChild(container);
+    }
+
+    async function startSmartQuiz(cards) {
+      if (!cards || cards.length === 0) return;
+      setToolbarVisibility(false);
+      appEl.innerHTML = "<div style='padding:40px; text-align:center;'>学習データを準備中...</div>";
+
+      const scheduler = new Scheduler();
+      await scheduler.init(cards);
+
+      function nextLoop() {
+        const nextCard = scheduler.selectNextCard();
+        if (!nextCard) {
+          alert("出題可能なカードがありません。");
+          showPathSelection();
+          return;
+        }
+        const stats = scheduler.getStats(nextCard.id);
+        appEl.innerHTML = "";
+        appEl.appendChild(createBackButton(() => showPathSelection()));
+        
+        const cardView = createCardView(nextCard, stats, {
+          onSwipe: async (outcome) => {
+            appEl.innerHTML = "<div style='display:flex;height:100%;align-items:center;justify-content:center;font-weight:bold;color:#888;'>Saving...</div>";
+            await scheduler.recordResult(nextCard.id, outcome);
+            nextLoop();
+          }
+        });
+        appEl.appendChild(cardView);
+      }
+      nextLoop();
+    }
+
+    /* --- モーダル制御 --- */
+    const configBtn = document.getElementById("configBtn");
+    const configModal = document.getElementById("configModal");
+    const configSave = document.getElementById("configSave");
+    const configCancel = document.getElementById("configCancel");
+    
+    configBtn.addEventListener("click", () => {
+      document.getElementById("cfgLearningThreshold").value = CONFIG.LEARNING_THRESHOLD;
+      document.getElementById("cfgLikelyWrongLimit").value = CONFIG.LIKELY_WRONG_LIMIT;
+      document.getElementById("cfgGlobalBeta").value = CONFIG.GLOBAL_BETA;
+      document.getElementById("cfgGhUser").value = CONFIG.GH_USER;
+      document.getElementById("cfgGhRepo").value = CONFIG.GH_REPO;
+      document.getElementById("cfgGhToken").value = CONFIG.GH_TOKEN;
+      configModal.classList.remove("hidden");
+    });
+    configCancel.addEventListener("click", () => configModal.classList.add("hidden"));
+    configSave.addEventListener("click", () => {
+      const lt = parseInt(document.getElementById("cfgLearningThreshold").value, 10);
+      const lwl = parseInt(document.getElementById("cfgLikelyWrongLimit").value, 10);
+      const gb = parseFloat(document.getElementById("cfgGlobalBeta").value);
+      
+      const ghUser = document.getElementById("cfgGhUser").value.trim();
+      const ghRepo = document.getElementById("cfgGhRepo").value.trim();
+      const ghToken = document.getElementById("cfgGhToken").value.trim();
+
+      if (lt > 0) CONFIG.LEARNING_THRESHOLD = lt;
+      if (!isNaN(lwl) && lwl >= 0) CONFIG.LIKELY_WRONG_LIMIT = lwl;
+      if (gb > 0) CONFIG.GLOBAL_BETA = gb;
+      
+      CONFIG.GH_USER = ghUser;
+      CONFIG.GH_REPO = ghRepo;
+      CONFIG.GH_TOKEN = ghToken;
+      
+      saveConfig();
+      alert("設定を保存しました。");
+      configModal.classList.add("hidden");
+    });
+
+    // --- Sync Modal ---
+    const syncBtn = document.getElementById("syncBtn");
+    const syncModal = document.getElementById("syncModal");
+    const syncClose = document.getElementById("syncClose");
+    
+    syncBtn.addEventListener("click", () => syncModal.classList.remove("hidden"));
+    syncClose.addEventListener("click", () => syncModal.classList.add("hidden"));
+
+    // Upload History to GitHub
+    document.getElementById("btnUploadHistory").addEventListener("click", async () => {
+        const btn = document.getElementById("btnUploadHistory");
+        const originalText = btn.textContent;
+        btn.textContent = "アップロード中...";
+        btn.disabled = true;
+
+        try {
+            const history = await getAllHistory();
+            const jsonStr = JSON.stringify(history, null, 2);
+            const contentBase64 = utf8_to_b64(jsonStr);
+            const path = "data/history.json";
+
+            // 1. Get current SHA (if exists)
+            let sha = null;
+            try {
+                const res = await githubApiRequest("GET", path);
+                sha = res.sha;
+            } catch (e) {
+                // File might not exist yet, which is fine
+                console.log("File likely doesn't exist yet or other error", e);
+            }
+
+            // 2. Put (Create or Update)
+            const body = {
+                message: "Update history.json from AnkiApp",
+                content: contentBase64
+            };
+            if (sha) body.sha = sha;
+
+            await githubApiRequest("PUT", path, body);
+            
+            alert("履歴をGitHubへ保存しました。");
+        } catch (err) {
+            console.error(err);
+            alert("アップロード失敗: " + err.message);
+        } finally {
+            btn.textContent = originalText;
+            btn.disabled = false;
+        }
+    });
+
+    // Import Params from GitHub
+    document.getElementById("btnImportParams").addEventListener("click", async () => {
+        const btn = document.getElementById("btnImportParams");
+        const originalText = btn.textContent;
+        btn.textContent = "読み込み中...";
+        btn.disabled = true;
+
+        try {
+            const path = "data/parameters.json";
+            // Get content
+            const res = await githubApiRequest("GET", path);
+            const jsonStr = b64_to_utf8(res.content);
+            const params = JSON.parse(jsonStr);
+
+            // 1. Global Param
+            if (params.global_beta !== undefined) {
+                CONFIG.GLOBAL_BETA = params.global_beta;
+                saveConfig();
+            }
+            
+            // 2. Problem Params
+            if (params.problems) {
+                const db = await openDB();
+                const tx = db.transaction(["cards", "cardStats"], "readwrite");
+                const cardStore = tx.objectStore("cards");
+                const statStore = tx.objectStore("cardStats");
+                
+                const cards = await new Promise(r => { cardStore.getAll().onsuccess = e => r(e.target.result); });
+                const stats = await new Promise(r => { statStore.getAll().onsuccess = e => r(e.target.result); });
+                
+                const statsMap = new Map();
+                stats.forEach(s => statsMap.set(s.cardId, s));
+                
+                let updateCount = 0;
+                cards.forEach(card => {
+                const pIdStr = String(card.numericId);
+                const pParam = params.problems[pIdStr];
+                if (pParam) {
+                    let s = statsMap.get(card.id);
+                    if (!s) s = new CardStats(card.id);
+                    
+                    if (pParam.d !== undefined) s.d = pParam.d;
+                    if (pParam.a !== undefined) s.a = pParam.a;
+                    
+                    statStore.put(s);
+                    updateCount++;
+                }
+                });
+                
+                alert(`パラメータをインポートしました。\n更新件数: ${updateCount}\nGlobal Beta: ${CONFIG.GLOBAL_BETA}`);
+                syncModal.classList.add("hidden");
+                showPathSelection(); // Refresh
+            } else {
+                alert("パラメータファイルの形式が正しくありません");
+            }
+        } catch (err) {
+            console.error(err);
+            alert("読み込み失敗: " + err.message);
+        } finally {
+            btn.textContent = originalText;
+            btn.disabled = false;
+        }
+    });
+
+    // Event Init
+    tsvInput.addEventListener("change", async e => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const path = prompt("この問題群のフォルダ名を入力してください（例: 英語/英単語/Part1）");
+      if (!path) { tsvInput.value = ""; return; }
+      try {
+        await importXLSX(file, path);
+        tsvInput.value = "";
+        showPathSelection();
+      } catch (err) {
+        console.error(err);
+        alert("読み込みに失敗しました");
+      }
+    });
+
+    showPathSelection();
+  </script>
+</body>
+</html>
