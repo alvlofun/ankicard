@@ -971,8 +971,19 @@
       appEl.appendChild(browser);
     }
 
-    function showCardList(cards, title) {
+    async function showCardList(cards, title) {
       setToolbarVisibility(false);
+      appEl.innerHTML = "<div style='padding:40px; text-align:center;'>読み込み中...</div>";
+
+      // 統計情報の取得
+      const db = await openDB();
+      const tx = db.transaction("cardStats", "readonly");
+      const store = tx.objectStore("cardStats");
+      const allStats = await new Promise(r => { store.getAll().onsuccess = e => r(e.target.result); });
+      
+      const statsMap = new Map();
+      allStats.forEach(s => statsMap.set(s.cardId, s));
+
       appEl.innerHTML = "";
       appEl.appendChild(createBackButton(() => showPathSelection()));
 
@@ -983,17 +994,45 @@
       header.textContent = `${title} (${cards.length}問)`;
       container.appendChild(header);
 
+      const now = Date.now();
+
       cards.forEach((card, i) => {
         const item = document.createElement("div");
         item.className = "list-item";
+        
         const qDiv = document.createElement("div");
         qDiv.className = "list-q";
         qDiv.textContent = `Q${i+1} [ID:${card.numericId}] ${card.question}`;
+        
         const aDiv = document.createElement("div");
         aDiv.className = "list-a";
         aDiv.textContent = `A. ${card.answer}`;
+        
+        // 統計情報の表示
+        const stats = statsMap.get(card.id) || new CardStats(card.id);
+        
+        // 現在時刻に基づいたPを再計算して表示
+        let currentP = stats.estimatedP;
+        if (stats.state !== "new") {
+            currentP = calculateP(stats, now);
+        }
+
+        const infoDiv = document.createElement("div");
+        infoDiv.style.fontSize = "0.75rem";
+        infoDiv.style.color = "#3b82f6";
+        infoDiv.style.marginTop = "4px";
+        infoDiv.style.fontFamily = "monospace";
+        infoDiv.innerHTML = `
+          State: <b>${stats.state}</b> | 
+          k: ${stats.reviewCount} | 
+          Est.P: ${(currentP * 100).toFixed(1)}% | 
+          d: ${stats.d.toFixed(2)} | 
+          a: ${stats.a.toFixed(2)}
+        `;
+
         item.appendChild(qDiv);
         item.appendChild(aDiv);
+        item.appendChild(infoDiv);
         container.appendChild(item);
       });
       appEl.appendChild(container);
