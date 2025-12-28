@@ -1102,5 +1102,77 @@
     "accumulatedCount": 1,
     "elapsedMinutes": 0.04786666666666667,
     "id": 92
+  },
+  {
+    "cardId": "leap/1351-1400-85-ecef7912-bd15-4b50-a07a-65de6f2f7e10",
+    "problemId": 163,
+    "isCorrect": 0,
+    "timestamp": 1766919249,
+    "prevTimestamp": null,
+    "log_k": 0,
+    "log_t": 0,
+    "accumulatedCount": 0,
+    "elapsedMinutes": 0,
+    "id": 93
+  },
+  {
+    "cardId": "leap/1351-1400-21-533b978a-40d3-4de5-9f4d-779909620c67",
+    "problemId": 99,
+    "isCorrect": 1,
+    "timestamp": 1766919367,
+    "prevTimestamp": null,
+    "log_k": 0,
+    "log_t": 0,
+    "accumulatedCount": 0,
+    "elapsedMinutes": 0,
+    "id": 94
+  },
+  {
+    "cardId": "leap/1351-1400-49-5e676044-4740-4ed8-954c-4be803b4c25c",
+    "problemId": 127,
+    "isCorrect": 1,
+    "timestamp": 1766920818,
+    "prevTimestamp": null,
+    "log_k": 0,
+    "log_t": 0,
+    "accumulatedCount": 0,
+    "elapsedMinutes": 0,
+    "id": 95
+  },
+  {
+    "cardId": "leap/1351-1400-51-beaa9ac1-453b-46ea-b2e8-3f69f951df64",
+    "problemId": 129,
+    "isCorrect": 0,
+    "timestamp": 1766920823,
+    "prevTimestamp": null,
+    "log_k": 0,
+    "log_t": 0,
+    "accumulatedCount": 0,
+    "elapsedMinutes": 0,
+    "id": 96
+  },
+  {
+    "cardId": "leap/1351-1400-34-8b4431ac-f316-4973-ae4d-23d0d357a200",
+    "problemId": 112,
+    "isCorrect": 0,
+    "timestamp": 1766920835,
+    "prevTimestamp": null,
+    "log_k": 0,
+    "log_t": 0,
+    "accumulatedCount": 0,
+    "elapsedMinutes": 0,
+    "id": 97
+  },
+  {
+    "cardId": "leap/1351-1400-70-64971952-e0b6-4853-a905-976253803d6c",
+    "problemId": 148,
+    "isCorrect": 0,
+    "timestamp": 1766920871,
+    "prevTimestamp": null,
+    "log_k": 0,
+    "log_t": 0,
+    "accumulatedCount": 0,
+    "elapsedMinutes": 0,
+    "id": 98
   }
 ]
