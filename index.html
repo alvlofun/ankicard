@@ -401,9 +401,9 @@
         <div style="font-weight:bold; margin-bottom:5px;">1. 学習履歴のアップロード</div>
         <div class="sync-desc">
           現在の学習履歴をGitHubへ保存します。
-          <br>※初回の学習データ(k=0)はモデル推定のため除外されます。
+          <br>※保存されている事実データ(history)から、学習モデルに必要な形式(k, interval)を再計算して生成します。
         </div>
-        <button class="btn-primary" id="btnUploadHistory">履歴をGitHubへ保存</button>
+        <button class="btn-primary" id="btnUploadHistory">履歴を再計算して保存</button>
       </div>
 
       <div class="sync-area">
@@ -632,8 +632,10 @@
         db.transaction("cardStats", "readwrite").objectStore("cardStats").put(stats);
     }
 
+    // 変更: historyは最低限の事実データのみ保存
     async function recordHistory(entry) {
         const db = await openDB();
+        // entry = { item_id, result, timestamp }
         db.transaction("history", "readwrite").objectStore("history").add(entry);
     }
 
@@ -694,26 +696,21 @@
       async recordResult(cardId, outcome) {
         const now = Date.now();
         const stats = this.statsMap.get(cardId);
-        const card = this.cardsMap.get(cardId);
         
-        const k = (stats && typeof stats.reviewCount === 'number') ? stats.reviewCount : 0;
-        
-        let dt_seconds = 0;
-        if (stats.lastReviewedAt) {
-            dt_seconds = (now - stats.lastReviewedAt) / 1000;
-        }
-
+        // --- 変更箇所 ---
+        // 履歴DBには「事実」のみ保存する
+        // 計算可能データ（k, interval, group_id, numeric_id等）は保存しない
         const historyEntry = {
             item_id: cardId, 
-            group_id: card.path, 
             result: (outcome === "correct" ? 1 : 0),
-            history_count: Number(k),
-            interval_seconds: dt_seconds,
-            timestamp: Math.floor(now / 1000),
-            numeric_id: card.numericId 
+            timestamp: Math.floor(now / 1000)
         };
         await recordHistory(historyEntry);
+        // ----------------
 
+        // cardStats (State) の更新
+        // ここは高速化のためにオンメモリ/キャッシュ的に更新し続ける
+        const k = (stats && typeof stats.reviewCount === 'number') ? stats.reviewCount : 0;
         stats.reviewCount = k + 1;
         stats.lastReviewedAt = now;
         
@@ -1230,62 +1227,101 @@
         btn.disabled = true;
 
         try {
-            const allHistory = await getAllHistory();
+            // 1. 全履歴データと全カードデータを取得
+            const allHistory = await getAllHistory(); // {item_id, result, timestamp} の配列
+            const allCards = await loadCards();
             
-            // モデル要件に従い、初回（k=0）のデータを除外してアップロードする
-            // 修正: 型安全にフィルタリングを行う
-            const filteredHistory = allHistory.filter(item => {
-                const k = Number(item.history_count);
-                // kが数値として有効であり、かつ1以上であるものを残す
-                return !isNaN(k) && k >= 1; 
+            // カードIDから情報を引けるようにMap化
+            const cardMap = new Map();
+            allCards.forEach(c => cardMap.set(c.id, c));
+
+            // 2. 履歴をitem_idごとにグループ化し、時系列順にソート
+            const historyByItem = {};
+            allHistory.forEach(h => {
+                if (!historyByItem[h.item_id]) historyByItem[h.item_id] = [];
+                historyByItem[h.item_id].push(h);
             });
 
-            // 統計情報の作成
-            const totalCount = allHistory.length;
-            const validCount = filteredHistory.length;
-            const k0Count = totalCount - validCount;
+            // 3. データ変換・再計算 (k, interval_secondsの算出)
+            const exportData = [];
+            
+            for (const itemId of Object.keys(historyByItem)) {
+                const itemHists = historyByItem[itemId];
+                // タイムスタンプ順にソート
+                itemHists.sort((a, b) => a.timestamp - b.timestamp);
 
-            // 有効データがない場合の確認
-            if (validCount === 0) {
+                let prevTime = null;
+                
+                itemHists.forEach((h, index) => {
+                    const card = cardMap.get(h.item_id);
+                    
+                    // k (過去の学習回数) = index
+                    const k = index; 
+                    
+                    // delta_t (経過時間)
+                    let dt = 0;
+                    if (prevTime !== null) {
+                        dt = h.timestamp - prevTime;
+                    }
+                    prevTime = h.timestamp;
+
+                    // モデル学習のため、k=0 (初回) のデータは除外
+                    if (k > 0) {
+                        exportData.push({
+                            item_id: h.item_id,
+                            group_id: card ? card.path : "unknown_group",
+                            result: h.result,
+                            history_count: k,
+                            interval_seconds: dt,
+                            timestamp: h.timestamp,
+                            // 参考情報として含めるがモデルには必須ではない
+                            numeric_id: card ? card.numericId : null
+                        });
+                    }
+                });
+            }
+
+            // 4. データチェックとアップロード
+            const totalRawCount = allHistory.length;
+            const validExportCount = exportData.length;
+
+            if (validExportCount === 0 && totalRawCount > 0) {
               const msg = `
-現在の履歴データ内訳:
-・全データ数: ${totalCount}件
-・初回学習(k=0) または 無効データ: ${k0Count}件 (除外対象)
-・有効な学習(k>=1): 0件
+生データ数: ${totalRawCount}件
+エクスポート対象(k>0): 0件
 
-有効な学習データがありません。
-空のファイルを作成してアップロードしますか？
-(※過去の学習履歴がk=0として記録されている可能性があります)
+有効な学習データ(2回目以降の学習)がありません。
+初回学習のみが存在するか、データ形式が無効です。
+空のリストとしてアップロードしますか？
               `.trim();
-
               if(!confirm(msg)) {
                  throw new Error("キャンセルされました");
               }
             }
 
-            const jsonStr = JSON.stringify(filteredHistory, null, 2);
+            const jsonStr = JSON.stringify(exportData, null, 2);
             const contentBase64 = utf8_to_b64(jsonStr);
             const path = "data/history.json";
 
-            // 1. Get current SHA (if exists)
+            // Get current SHA
             let sha = null;
             try {
                 const res = await githubApiRequest("GET", path);
                 sha = res.sha;
             } catch (e) {
-                console.log("File likely doesn't exist yet or other error", e);
+                console.log("File likely doesn't exist yet", e);
             }
 
-            // 2. Put (Create or Update)
+            // Put
             const body = {
-                message: `Update history.json (Valid: ${validCount}/${totalCount})`,
+                message: `Update history.json (Computed ${validExportCount} valid records from ${totalRawCount} raw logs)`,
                 content: contentBase64
             };
             if (sha) body.sha = sha;
 
             await githubApiRequest("PUT", path, body);
             
-            alert(`履歴をGitHubへ保存しました。\n(全${totalCount}件中 ${validCount}件を送信)`);
+            alert(`履歴をGitHubへ保存しました。\nDB上の生ログ${totalRawCount}件から、${validExportCount}件の学習データ(k>0)を生成して送信しました。`);
         } catch (err) {
             console.error(err);
             alert("アップロード失敗: " + err.message);
