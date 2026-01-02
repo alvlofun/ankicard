@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>暗記アプリ（GitHub連携版）</title>
+  <title>暗記アプリ (Bayesian Model)</title>
   
   <!-- Excel読み込み用ライブラリ (SheetJS) -->
   <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
@@ -325,11 +325,21 @@
         <input type="number" id="cfgLikelyWrongLimit" min="0" max="50">
       </label>
 
-      <div style="font-weight:bold; margin-top:15px; border-bottom:1px solid #eee;">モデルパラメータ (全体)</div>
+      <div style="font-weight:bold; margin-top:15px; border-bottom:1px solid #eee;">記憶モデルパラメータ</div>
       <label class="config-label">
-        Global Beta (忘却速度)
-        <input type="number" id="cfgGlobalBeta" step="0.01" min="0.01">
-        <div class="config-desc">値が大きいほど早く忘却します。</div>
+        Mu Base (ユーザーバイアス)
+        <input type="number" id="cfgMuBase" step="0.1">
+        <div class="config-desc">基準となる正答傾向。高いほど正答率が高くなります。</div>
+      </label>
+      <label class="config-label">
+        Alpha (学習率)
+        <input type="number" id="cfgAlpha" step="0.01" min="0">
+        <div class="config-desc">学習回数による定着の効果。正の値。</div>
+      </label>
+      <label class="config-label">
+        Beta (忘却率)
+        <input type="number" id="cfgBeta" step="0.01" min="0">
+        <div class="config-desc">時間経過による忘却の効果。正の値。</div>
       </label>
 
       <!-- GitHub設定セクション -->
@@ -372,7 +382,8 @@
       <div class="sync-area">
         <div style="font-weight:bold; margin-bottom:5px;">1. 学習履歴のアップロード</div>
         <div class="sync-desc">
-          現在の学習履歴をGitHubリポジトリの <code>data/history.json</code> に直接保存(Commit)します。
+          現在の学習履歴をGitHubへ保存します。
+          <br>※初回の学習データ(k=0)はモデル推定のため除外されます。
         </div>
         <button class="btn-primary" id="btnUploadHistory">履歴をGitHubへ保存</button>
       </div>
@@ -380,7 +391,7 @@
       <div class="sync-area">
         <div style="font-weight:bold; margin-bottom:5px;">2. パラメータのインポート</div>
         <div class="sync-desc">
-          GitHubリポジトリの <code>data/parameters.json</code> を取得し、最新のモデルパラメータを反映します。
+          GitHubの <code>data/parameters.json</code> から最新のモデルパラメータを取得し反映します。
         </div>
         <button class="btn-secondary" id="btnImportParams">パラメータを読み込む</button>
       </div>
@@ -394,12 +405,18 @@
   <script>
     /* --- 1. 定数・パラメータ --- */
     const DEFAULT_CONFIG = {
-      GLOBAL_BETA: 0.5,
+      // モデルパラメータ
+      MU_BASE: 0.0,
+      ALPHA: 0.5,
+      BETA: 0.5,
+      
+      // アプリ動作設定
       LEARNING_THRESHOLD: 5,
       LIKELY_WRONG_LIMIT: 5,
       MASTER_PROB_THRESHOLD: 0.9,
       LEARNING_PROB_THRESHOLD: 0.8,
       CONSECUTIVE_SUCCESS_REQUIRED: 2,
+      
       // GitHub Config
       GH_USER: "",
       GH_REPO: "",
@@ -411,17 +428,20 @@
       const savedConfig = localStorage.getItem("ankiAppConfig");
       if (savedConfig) {
         const parsed = JSON.parse(savedConfig);
-        // 数値変換
-        if (parsed.GLOBAL_BETA) parsed.GLOBAL_BETA = Number(parsed.GLOBAL_BETA);
-        if (parsed.LEARNING_THRESHOLD) parsed.LEARNING_THRESHOLD = Number(parsed.LEARNING_THRESHOLD);
-        if (parsed.LIKELY_WRONG_LIMIT !== undefined) parsed.LIKELY_WRONG_LIMIT = Number(parsed.LIKELY_WRONG_LIMIT);
+        
+        // 数値変換・互換性維持
+        if (parsed.MU_BASE !== undefined) CONFIG.MU_BASE = Number(parsed.MU_BASE);
+        if (parsed.ALPHA !== undefined) CONFIG.ALPHA = Number(parsed.ALPHA);
+        if (parsed.BETA !== undefined) CONFIG.BETA = Number(parsed.BETA);
+        // 旧パラメータ(GLOBAL_BETA)からの移行があればここで処理可能だが、今回はデフォルト値or設定値優先
+
+        if (parsed.LEARNING_THRESHOLD) CONFIG.LEARNING_THRESHOLD = Number(parsed.LEARNING_THRESHOLD);
+        if (parsed.LIKELY_WRONG_LIMIT !== undefined) CONFIG.LIKELY_WRONG_LIMIT = Number(parsed.LIKELY_WRONG_LIMIT);
         
         // GitHub設定の読み込み
         if (parsed.GH_USER) CONFIG.GH_USER = parsed.GH_USER;
         if (parsed.GH_REPO) CONFIG.GH_REPO = parsed.GH_REPO;
         if (parsed.GH_TOKEN) CONFIG.GH_TOKEN = parsed.GH_TOKEN;
-
-        CONFIG = { ...CONFIG, ...parsed };
       }
     } catch(e) { console.error("Config load failed", e); }
 
@@ -466,8 +486,8 @@
     /* --- 2. データ構造 --- */
     class Card {
       constructor({ id, numericId, path, question, answer, note = "" }) {
-        this.id = id;             // UUID
-        this.numericId = numericId; // Stan用整数ID
+        this.id = id;             // UUID (String)
+        this.numericId = numericId; // 整数ID (後方互換性のため維持、主に表示用)
         this.path = path;
         this.question = question;
         this.answer = answer;
@@ -483,8 +503,8 @@
         this.estimatedP = 0.5;
         this.consecutiveHighP = 0;
         this.reviewCount = 0;       
-        this.d = 0.0; // Difficulty
-        this.a = 1.0; // Discrimination
+        this.d = 0.0; // Difficulty (問題難易度)
+        this.a = 1.0; // Discrimination (旧モデル用、表示用に維持)
       }
     }
 
@@ -580,25 +600,31 @@
         });
     }
 
-    /* --- 4. ロジックコア --- */
+    /* --- 4. ロジックコア (Bayesian Model) --- */
     function sigmoid(x) {
       return 1.0 / (1.0 + Math.exp(-x));
     }
 
     function calculateP(stats, now) {
+      // k: 過去の学習回数
       const k = stats.reviewCount || 0;
-      let dt = 0;
+      
+      // delta_t: 前回からの経過時間（秒）
+      // モデルは delta_t を秒単位で想定 (Stanコードの log1p(delta_t) より)
+      let dt_seconds = 0;
       if (stats.lastReviewedAt) {
-          dt = (now - stats.lastReviewedAt) / 60000; 
+          dt_seconds = (now - stats.lastReviewedAt) / 1000; 
       }
-      if (dt < 0) dt = 0;
+      if (dt_seconds < 0) dt_seconds = 0;
 
-      const S = Math.log(1 + k) - CONFIG.GLOBAL_BETA * Math.log(1 + dt);
-      const a = (stats.a !== undefined) ? stats.a : 1.0;
+      // 新モデル式: 
+      // S = mu_base + alpha * log(1 + k) - beta * log(1 + dt)
+      // p = sigmoid(S - d)
+      
+      const S = CONFIG.MU_BASE + CONFIG.ALPHA * Math.log(1 + k) - CONFIG.BETA * Math.log(1 + dt_seconds);
       const d = (stats.d !== undefined) ? stats.d : 0.0;
       
-      const logit = a * S - d;
-      return sigmoid(logit);
+      return sigmoid(S - d);
     }
 
     class Scheduler {
@@ -631,23 +657,26 @@
         const card = this.cardsMap.get(cardId);
         
         const k = stats.reviewCount || 0;
-        let dt_min = 0;
+        let dt_seconds = 0;
         if (stats.lastReviewedAt) {
-            dt_min = (now - stats.lastReviewedAt) / 60000;
+            dt_seconds = (now - stats.lastReviewedAt) / 1000;
         }
-        const log_k = Math.log(1 + k);
-        const log_t = Math.log(1 + dt_min);
 
+        // Pythonモデル互換のためのデータ形式
+        // item_id: 問題ID (String)
+        // group_id: 問題群ID (String)
+        // result: 0 or 1
+        // history_count: 過去の回数
+        // interval_seconds: 経過秒数
         const historyEntry = {
-            cardId: cardId,
-            problemId: card.numericId,
-            isCorrect: (outcome === "correct" ? 1 : 0),
-            timestamp: Math.floor(now / 1000), 
-            prevTimestamp: stats.lastReviewedAt ? Math.floor(stats.lastReviewedAt / 1000) : null,
-            log_k: log_k,
-            log_t: log_t,
-            accumulatedCount: k,
-            elapsedMinutes: dt_min
+            item_id: cardId, // Stan側の "item_id" に対応
+            group_id: card.path, // Stan側の "group_id" に対応
+            result: (outcome === "correct" ? 1 : 0),
+            history_count: k, 
+            interval_seconds: dt_seconds,
+            timestamp: Math.floor(now / 1000),
+            // 以下デバッグ・旧互換用
+            numeric_id: card.numericId 
         };
         await recordHistory(historyEntry);
 
@@ -756,7 +785,7 @@
         ID: ${card.numericId}<br>
         State: <b>${stats.state}</b> (k=${stats.reviewCount})<br>
         Est. P: ${(stats.estimatedP * 100).toFixed(1)}%<br>
-        (d=${stats.d.toFixed(2)}, a=${stats.a.toFixed(2)})
+        (d=${stats.d.toFixed(2)})
       `;
       cardEl.appendChild(debugEl);
 
@@ -1026,8 +1055,7 @@
           State: <b>${stats.state}</b> | 
           k: ${stats.reviewCount} | 
           Est.P: ${(currentP * 100).toFixed(1)}% | 
-          d: ${stats.d.toFixed(2)} | 
-          a: ${stats.a.toFixed(2)}
+          d: ${stats.d.toFixed(2)}
         `;
 
         item.appendChild(qDiv);
@@ -1078,7 +1106,11 @@
     configBtn.addEventListener("click", () => {
       document.getElementById("cfgLearningThreshold").value = CONFIG.LEARNING_THRESHOLD;
       document.getElementById("cfgLikelyWrongLimit").value = CONFIG.LIKELY_WRONG_LIMIT;
-      document.getElementById("cfgGlobalBeta").value = CONFIG.GLOBAL_BETA;
+      
+      document.getElementById("cfgMuBase").value = CONFIG.MU_BASE;
+      document.getElementById("cfgAlpha").value = CONFIG.ALPHA;
+      document.getElementById("cfgBeta").value = CONFIG.BETA;
+      
       document.getElementById("cfgGhUser").value = CONFIG.GH_USER;
       document.getElementById("cfgGhRepo").value = CONFIG.GH_REPO;
       document.getElementById("cfgGhToken").value = CONFIG.GH_TOKEN;
@@ -1088,7 +1120,10 @@
     configSave.addEventListener("click", () => {
       const lt = parseInt(document.getElementById("cfgLearningThreshold").value, 10);
       const lwl = parseInt(document.getElementById("cfgLikelyWrongLimit").value, 10);
-      const gb = parseFloat(document.getElementById("cfgGlobalBeta").value);
+      
+      const mu = parseFloat(document.getElementById("cfgMuBase").value);
+      const alpha = parseFloat(document.getElementById("cfgAlpha").value);
+      const beta = parseFloat(document.getElementById("cfgBeta").value);
       
       const ghUser = document.getElementById("cfgGhUser").value.trim();
       const ghRepo = document.getElementById("cfgGhRepo").value.trim();
@@ -1096,7 +1131,10 @@
 
       if (lt > 0) CONFIG.LEARNING_THRESHOLD = lt;
       if (!isNaN(lwl) && lwl >= 0) CONFIG.LIKELY_WRONG_LIMIT = lwl;
-      if (gb > 0) CONFIG.GLOBAL_BETA = gb;
+      
+      if (!isNaN(mu)) CONFIG.MU_BASE = mu;
+      if (alpha >= 0) CONFIG.ALPHA = alpha;
+      if (beta >= 0) CONFIG.BETA = beta;
       
       CONFIG.GH_USER = ghUser;
       CONFIG.GH_REPO = ghRepo;
@@ -1123,8 +1161,19 @@
         btn.disabled = true;
 
         try {
-            const history = await getAllHistory();
-            const jsonStr = JSON.stringify(history, null, 2);
+            const allHistory = await getAllHistory();
+            
+            // モデル要件に従い、初回（k=0）のデータを除外してアップロードする
+            // history_count (k) が 0 のレコードをフィルタリング
+            const filteredHistory = allHistory.filter(item => item.history_count > 0);
+
+            if (filteredHistory.length === 0 && allHistory.length > 0) {
+              if(!confirm("初回学習データのみが存在します。これらはモデル学習対象外です。\nそれでもアップロードしますか？（ファイルは空リストになります）")) {
+                 throw new Error("キャンセルされました");
+              }
+            }
+
+            const jsonStr = JSON.stringify(filteredHistory, null, 2);
             const contentBase64 = utf8_to_b64(jsonStr);
             const path = "data/history.json";
 
@@ -1134,20 +1183,19 @@
                 const res = await githubApiRequest("GET", path);
                 sha = res.sha;
             } catch (e) {
-                // File might not exist yet, which is fine
                 console.log("File likely doesn't exist yet or other error", e);
             }
 
             // 2. Put (Create or Update)
             const body = {
-                message: "Update history.json from AnkiApp",
+                message: "Update history.json from AnkiApp (k>0 only)",
                 content: contentBase64
             };
             if (sha) body.sha = sha;
 
             await githubApiRequest("PUT", path, body);
             
-            alert("履歴をGitHubへ保存しました。");
+            alert(`履歴をGitHubへ保存しました。\n(全${allHistory.length}件中 ${filteredHistory.length}件を送信)`);
         } catch (err) {
             console.error(err);
             alert("アップロード失敗: " + err.message);
@@ -1166,51 +1214,53 @@
 
         try {
             const path = "data/parameters.json";
-            // Get content
             const res = await githubApiRequest("GET", path);
             const jsonStr = b64_to_utf8(res.content);
             const params = JSON.parse(jsonStr);
 
-            // 1. Global Param
-            if (params.global_beta !== undefined) {
-                CONFIG.GLOBAL_BETA = params.global_beta;
-                saveConfig();
+            let updated = false;
+
+            // 1. Global Parameters
+            if (params.global_parameters) {
+                const g = params.global_parameters;
+                if (g.mu_base !== undefined) CONFIG.MU_BASE = g.mu_base;
+                if (g.alpha !== undefined) CONFIG.ALPHA = g.alpha;
+                if (g.beta !== undefined) CONFIG.BETA = g.beta;
+                updated = true;
             }
             
-            // 2. Problem Params
-            if (params.problems) {
+            // 2. Item Difficulties
+            if (params.item_difficulties) {
                 const db = await openDB();
                 const tx = db.transaction(["cards", "cardStats"], "readwrite");
                 const cardStore = tx.objectStore("cards");
                 const statStore = tx.objectStore("cardStats");
                 
-                const cards = await new Promise(r => { cardStore.getAll().onsuccess = e => r(e.target.result); });
+                // 全カードと全統計を取得
                 const stats = await new Promise(r => { statStore.getAll().onsuccess = e => r(e.target.result); });
-                
                 const statsMap = new Map();
                 stats.forEach(s => statsMap.set(s.cardId, s));
                 
                 let updateCount = 0;
-                cards.forEach(card => {
-                const pIdStr = String(card.numericId);
-                const pParam = params.problems[pIdStr];
-                if (pParam) {
-                    let s = statsMap.get(card.id);
-                    if (!s) s = new CardStats(card.id);
+                
+                // item_difficultiesのキーはPython側で item_id (String) として保存されている
+                for (const [itemId, difficulty] of Object.entries(params.item_difficulties)) {
+                    // 該当するカードの統計情報を更新
+                    let s = statsMap.get(itemId);
+                    if (!s) s = new CardStats(itemId); // 存在しない場合は新規作成
                     
-                    if (pParam.d !== undefined) s.d = pParam.d;
-                    if (pParam.a !== undefined) s.a = pParam.a;
-                    
+                    s.d = difficulty;
                     statStore.put(s);
                     updateCount++;
                 }
-                });
                 
-                alert(`パラメータをインポートしました。\n更新件数: ${updateCount}\nGlobal Beta: ${CONFIG.GLOBAL_BETA}`);
+                saveConfig();
+                alert(`パラメータをインポートしました。\n更新件数: ${updateCount}\n\n[Global]\nMu Base: ${CONFIG.MU_BASE.toFixed(2)}\nAlpha: ${CONFIG.ALPHA.toFixed(2)}\nBeta: ${CONFIG.BETA.toFixed(2)}`);
+                
                 syncModal.classList.add("hidden");
-                showPathSelection(); // Refresh
+                showPathSelection(); // Refresh UI
             } else {
-                alert("パラメータファイルの形式が正しくありません");
+                alert("パラメータファイルの形式が正しくありません (item_difficulties not found)");
             }
         } catch (err) {
             console.error(err);
