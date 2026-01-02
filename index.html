@@ -607,7 +607,7 @@
 
     function calculateP(stats, now) {
       // k: 過去の学習回数
-      const k = stats.reviewCount || 0;
+      const k = (stats && typeof stats.reviewCount === 'number') ? stats.reviewCount : 0;
       
       // delta_t: 前回からの経過時間（秒）
       // モデルは delta_t を秒単位で想定 (Stanコードの log1p(delta_t) より)
@@ -643,7 +643,12 @@
         const store = tx.objectStore("cardStats");
         const allStats = await new Promise(r => { store.getAll().onsuccess = e => r(e.target.result); });
         
-        allStats.forEach(s => this.statsMap.set(s.cardId, s));
+        // statsMapへのロード時に型変換などは特に行わないが、
+        // 使う側でチェックする
+        allStats.forEach(s => {
+            this.statsMap.set(s.cardId, s);
+        });
+        
         cards.forEach(c => {
             if (!this.statsMap.has(c.id)) {
                 this.statsMap.set(c.id, new CardStats(c.id));
@@ -656,7 +661,9 @@
         const stats = this.statsMap.get(cardId);
         const card = this.cardsMap.get(cardId);
         
-        const k = stats.reviewCount || 0;
+        // 数値型であることを保証
+        const k = (stats && typeof stats.reviewCount === 'number') ? stats.reviewCount : 0;
+        
         let dt_seconds = 0;
         if (stats.lastReviewedAt) {
             dt_seconds = (now - stats.lastReviewedAt) / 1000;
@@ -672,7 +679,7 @@
             item_id: cardId, // Stan側の "item_id" に対応
             group_id: card.path, // Stan側の "group_id" に対応
             result: (outcome === "correct" ? 1 : 0),
-            history_count: k, 
+            history_count: Number(k), // 念の為Numberキャスト
             interval_seconds: dt_seconds,
             timestamp: Math.floor(now / 1000),
             // 以下デバッグ・旧互換用
@@ -1055,7 +1062,8 @@
           State: <b>${stats.state}</b> | 
           k: ${stats.reviewCount} | 
           Est.P: ${(currentP * 100).toFixed(1)}% | 
-          d: ${stats.d.toFixed(2)}
+          d: ${stats.d.toFixed(2)}<br>
+          <span style="color:#aaa;">UID: ${card.id.split('-').pop().substring(0,8)}</span>
         `;
 
         item.appendChild(qDiv);
@@ -1164,11 +1172,32 @@
             const allHistory = await getAllHistory();
             
             // モデル要件に従い、初回（k=0）のデータを除外してアップロードする
-            // history_count (k) が 0 のレコードをフィルタリング
-            const filteredHistory = allHistory.filter(item => item.history_count > 0);
+            // 修正: 型安全にフィルタリングを行う
+            const filteredHistory = allHistory.filter(item => {
+                const k = Number(item.history_count);
+                // kが数値として有効であり、かつ1以上であるものを残す
+                return !isNaN(k) && k >= 1; 
+            });
 
-            if (filteredHistory.length === 0 && allHistory.length > 0) {
-              if(!confirm("初回学習データのみが存在します。これらはモデル学習対象外です。\nそれでもアップロードしますか？（ファイルは空リストになります）")) {
+            // 統計情報の作成
+            const totalCount = allHistory.length;
+            const validCount = filteredHistory.length;
+            const k0Count = totalCount - validCount;
+
+            // 有効データがない場合の確認
+            if (validCount === 0) {
+              const msg = `
+現在の履歴データ内訳:
+・全データ数: ${totalCount}件
+・初回学習(k=0) または 無効データ: ${k0Count}件 (除外対象)
+・有効な学習(k>=1): 0件
+
+有効な学習データがありません。
+空のファイルを作成してアップロードしますか？
+(※過去の学習履歴がk=0として記録されている可能性があります)
+              `.trim();
+
+              if(!confirm(msg)) {
                  throw new Error("キャンセルされました");
               }
             }
@@ -1188,14 +1217,14 @@
 
             // 2. Put (Create or Update)
             const body = {
-                message: "Update history.json from AnkiApp (k>0 only)",
+                message: `Update history.json (Valid: ${validCount}/${totalCount})`,
                 content: contentBase64
             };
             if (sha) body.sha = sha;
 
             await githubApiRequest("PUT", path, body);
             
-            alert(`履歴をGitHubへ保存しました。\n(全${allHistory.length}件中 ${filteredHistory.length}件を送信)`);
+            alert(`履歴をGitHubへ保存しました。\n(全${totalCount}件中 ${validCount}件を送信)`);
         } catch (err) {
             console.error(err);
             alert("アップロード失敗: " + err.message);
