@@ -250,6 +250,7 @@
       background: white; padding: 20px; border-radius: 12px;
       width: 90%; max-width: 500px; max-height: 85vh; overflow-y: auto;
       box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+      display: flex; flex-direction: column;
     }
     .modal-title { font-weight: bold; font-size: 1.2rem; margin-bottom: 15px; }
     
@@ -294,6 +295,22 @@
         padding-top: 20px;
         border-top: 2px solid #eee;
     }
+
+    /* Debug Modal Styles */
+    #debugText {
+      flex: 1;
+      width: 100%;
+      padding: 10px;
+      box-sizing: border-box;
+      font-family: monospace;
+      font-size: 12px;
+      white-space: pre;
+      overflow: auto;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      background: #f8f8f8;
+      color: #333;
+    }
   </style>
 </head>
 <body>
@@ -302,6 +319,7 @@
   <div id="toolbar">
     <div class="tool-btn" id="configBtn">🔧 設定</div>
     <div class="tool-btn" id="syncBtn">🔄 同期</div>
+    <div class="tool-btn" id="debugBtn">🐞 DB</div>
     <div class="tool-btn">
       <span style="font-weight:bold; margin-right:5px;">Excel:</span>
       <input type="file" id="tsvInput" accept=".xlsx, .xls" style="width:170px;" />
@@ -402,6 +420,21 @@
     </div>
   </div>
 
+  <!-- デバッグモーダル -->
+  <div id="debugModal" class="modal-overlay hidden">
+    <div class="modal-content" style="max-width: 95%; height: 90vh;">
+      <div class="modal-title">IndexedDB Dump (Debug)</div>
+      <div style="margin-bottom:5px; font-size:0.8rem; color:#666;">
+        現在のデータベースの内容です (cards, cardStats, history, reviews)。
+      </div>
+      <textarea id="debugText" readonly></textarea>
+      <div class="modal-actions">
+        <button class="btn-secondary" id="debugClose">閉じる</button>
+        <button class="btn-primary" id="debugRefresh">更新</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     /* --- 1. 定数・パラメータ --- */
     const DEFAULT_CONFIG = {
@@ -433,7 +466,6 @@
         if (parsed.MU_BASE !== undefined) CONFIG.MU_BASE = Number(parsed.MU_BASE);
         if (parsed.ALPHA !== undefined) CONFIG.ALPHA = Number(parsed.ALPHA);
         if (parsed.BETA !== undefined) CONFIG.BETA = Number(parsed.BETA);
-        // 旧パラメータ(GLOBAL_BETA)からの移行があればここで処理可能だが、今回はデフォルト値or設定値優先
 
         if (parsed.LEARNING_THRESHOLD) CONFIG.LEARNING_THRESHOLD = Number(parsed.LEARNING_THRESHOLD);
         if (parsed.LIKELY_WRONG_LIMIT !== undefined) CONFIG.LIKELY_WRONG_LIMIT = Number(parsed.LIKELY_WRONG_LIMIT);
@@ -450,12 +482,10 @@
     }
 
     /* --- GitHub API Helper --- */
-    // Unicode文字列をBase64にエンコードする（日本語対応）
     function utf8_to_b64(str) {
       return window.btoa(unescape(encodeURIComponent(str)));
     }
     
-    // Base64をUnicode文字列にデコードする（日本語対応）
     function b64_to_utf8(str) {
       return decodeURIComponent(escape(window.atob(str)));
     }
@@ -503,8 +533,8 @@
         this.estimatedP = 0.5;
         this.consecutiveHighP = 0;
         this.reviewCount = 0;       
-        this.d = 0.0; // Difficulty (問題難易度)
-        this.a = 1.0; // Discrimination (旧モデル用、表示用に維持)
+        this.d = 0.0; // Difficulty
+        this.a = 1.0; // Discrimination
       }
     }
 
@@ -535,6 +565,21 @@
         request.onsuccess = () => resolve(request.result);
         request.onerror = () => reject(request.error);
       });
+    }
+
+    // デバッグ用: 全データを取得
+    async function dumpAllData() {
+      const db = await openDB();
+      const tx = db.transaction(db.objectStoreNames, "readonly");
+      const data = {};
+      
+      for (const storeName of Array.from(db.objectStoreNames)) {
+        const store = tx.objectStore(storeName);
+        data[storeName] = await new Promise(r => {
+           store.getAll().onsuccess = e => r(e.target.result);
+        });
+      }
+      return data;
     }
 
     async function saveCards(cards) {
@@ -606,21 +651,13 @@
     }
 
     function calculateP(stats, now) {
-      // k: 過去の学習回数
       const k = (stats && typeof stats.reviewCount === 'number') ? stats.reviewCount : 0;
-      
-      // delta_t: 前回からの経過時間（秒）
-      // モデルは delta_t を秒単位で想定 (Stanコードの log1p(delta_t) より)
       let dt_seconds = 0;
       if (stats.lastReviewedAt) {
           dt_seconds = (now - stats.lastReviewedAt) / 1000; 
       }
       if (dt_seconds < 0) dt_seconds = 0;
 
-      // 新モデル式: 
-      // S = mu_base + alpha * log(1 + k) - beta * log(1 + dt)
-      // p = sigmoid(S - d)
-      
       const S = CONFIG.MU_BASE + CONFIG.ALPHA * Math.log(1 + k) - CONFIG.BETA * Math.log(1 + dt_seconds);
       const d = (stats.d !== undefined) ? stats.d : 0.0;
       
@@ -643,8 +680,6 @@
         const store = tx.objectStore("cardStats");
         const allStats = await new Promise(r => { store.getAll().onsuccess = e => r(e.target.result); });
         
-        // statsMapへのロード時に型変換などは特に行わないが、
-        // 使う側でチェックする
         allStats.forEach(s => {
             this.statsMap.set(s.cardId, s);
         });
@@ -661,7 +696,6 @@
         const stats = this.statsMap.get(cardId);
         const card = this.cardsMap.get(cardId);
         
-        // 数値型であることを保証
         const k = (stats && typeof stats.reviewCount === 'number') ? stats.reviewCount : 0;
         
         let dt_seconds = 0;
@@ -669,20 +703,13 @@
             dt_seconds = (now - stats.lastReviewedAt) / 1000;
         }
 
-        // Pythonモデル互換のためのデータ形式
-        // item_id: 問題ID (String)
-        // group_id: 問題群ID (String)
-        // result: 0 or 1
-        // history_count: 過去の回数
-        // interval_seconds: 経過秒数
         const historyEntry = {
-            item_id: cardId, // Stan側の "item_id" に対応
-            group_id: card.path, // Stan側の "group_id" に対応
+            item_id: cardId, 
+            group_id: card.path, 
             result: (outcome === "correct" ? 1 : 0),
-            history_count: Number(k), // 念の為Numberキャスト
+            history_count: Number(k),
             interval_seconds: dt_seconds,
             timestamp: Math.floor(now / 1000),
-            // 以下デバッグ・旧互換用
             numeric_id: card.numericId 
         };
         await recordHistory(historyEntry);
@@ -988,6 +1015,13 @@
       setToolbarVisibility(!firstLaunch);
       firstLaunch = false;
       const cards = await loadCards();
+      
+      // DEBUG: コンソールにDB内容を出力
+      dumpAllData().then(data => {
+        console.log("=== IndexedDB Dump (Startup) ===");
+        console.log(data);
+      });
+
       appEl.innerHTML = "";
 
       if (cards.length === 0) {
@@ -1160,6 +1194,33 @@
     
     syncBtn.addEventListener("click", () => syncModal.classList.remove("hidden"));
     syncClose.addEventListener("click", () => syncModal.classList.add("hidden"));
+
+    // --- Debug Modal ---
+    const debugBtn = document.getElementById("debugBtn");
+    const debugModal = document.getElementById("debugModal");
+    const debugClose = document.getElementById("debugClose");
+    const debugRefresh = document.getElementById("debugRefresh");
+    const debugText = document.getElementById("debugText");
+
+    // デバッグモーダルを開く
+    debugBtn.addEventListener("click", async () => {
+      debugModal.classList.remove("hidden");
+      debugText.value = "Loading DB data...";
+      const data = await dumpAllData();
+      debugText.value = JSON.stringify(data, null, 2);
+    });
+
+    // デバッグモーダルを閉じる
+    debugClose.addEventListener("click", () => {
+      debugModal.classList.add("hidden");
+    });
+    
+    // 更新ボタン
+    debugRefresh.addEventListener("click", async () => {
+      debugText.value = "Refreshing...";
+      const data = await dumpAllData();
+      debugText.value = JSON.stringify(data, null, 2);
+    });
 
     // Upload History to GitHub
     document.getElementById("btnUploadHistory").addEventListener("click", async () => {
