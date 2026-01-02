@@ -749,26 +749,52 @@
 
         if (statsList.length === 0) return null;
 
+        // リストの分類
         const newCards = statsList.filter(s => s.state === "new");
         const learningCards = statsList.filter(s => s.state === "learning");
         const masteredCards = statsList.filter(s => s.state === "mastered");
 
+        // mastered からの格下げ処理
         const degradable = masteredCards.filter(s => s.estimatedP <= CONFIG.LEARNING_PROB_THRESHOLD);
         degradable.forEach(s => {
              s.state = "learning"; 
              learningCards.push(s);
         });
 
+        // --- ★★★ 追加箇所 START ★★★ ---
+        // 低確率で通常のロジックを無視し、既習カード(learning / mastered)からランダム出題
+        // CONFIG.RANDOM_REVIEW_CHANCE は 0.1 (10%) などを想定
+        if (Math.random() < (CONFIG.RANDOM_REVIEW_CHANCE || 0.1)) {
+            // learning と mastered を候補として結合
+            const reviewCandidates = [...learningCards, ...masteredCards];
+            
+            if (reviewCandidates.length > 0) {
+                // ここで返せば、以降の優先順位ロジックはスキップされる
+                return this.pickRandom(reviewCandidates);
+            }
+        }
+        // --- ★★★ 追加箇所 END ★★★ ---
+
+
         const likelyWrong = learningCards.filter(s => Math.random() > s.estimatedP);
         
+        // --- 以下、既存の優先順位ロジック ---
+
+        // 1. 脳に余裕があれば新規カード
         if (likelyWrong.length < CONFIG.LIKELY_WRONG_LIMIT) {
              if (newCards.length > 0) return this.pickRandom(newCards);
         }
 
+        // 2. 忘れそうなカードを最優先
         if (likelyWrong.length > 0) return this.pickRandom(likelyWrong);
+        
+        // 3. 通常の学習中カード
         if (learningCards.length > 0) return this.pickRandom(learningCards);
+        
+        // 4. まだ新規があれば（フォールバック）
         if (newCards.length > 0) return this.pickRandom(newCards);
         
+        // 5. 習得済みの総復習
         if (masteredCards.length > 0) {
             masteredCards.sort((a,b) => a.estimatedP - b.estimatedP);
             const candidates = masteredCards.slice(0, Math.min(5, masteredCards.length));
