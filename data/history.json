@@ -1,739 +1,443 @@
 [
   {
-    "group_id": "unknown_group",
-    "history_count": 1,
-    "interval_seconds": 10,
-    "timestamp": 1766917074,
-    "numeric_id": null
-  },
-  {
-    "group_id": "unknown_group",
-    "history_count": 2,
-    "interval_seconds": 11,
-    "timestamp": 1766917085,
-    "numeric_id": null
-  },
-  {
-    "group_id": "unknown_group",
-    "history_count": 3,
-    "interval_seconds": 15,
-    "timestamp": 1766917100,
-    "numeric_id": null
-  },
-  {
-    "group_id": "unknown_group",
-    "history_count": 4,
-    "interval_seconds": 7,
-    "timestamp": 1766917107,
-    "numeric_id": null
-  },
-  {
-    "group_id": "unknown_group",
-    "history_count": 5,
-    "interval_seconds": 23,
-    "timestamp": 1766917130,
-    "numeric_id": null
-  },
-  {
-    "group_id": "unknown_group",
-    "history_count": 6,
-    "interval_seconds": 13,
-    "timestamp": 1766917143,
-    "numeric_id": null
-  },
-  {
-    "group_id": "unknown_group",
-    "history_count": 7,
-    "interval_seconds": 13,
-    "timestamp": 1766917156,
-    "numeric_id": null
-  },
-  {
-    "group_id": "unknown_group",
-    "history_count": 8,
-    "interval_seconds": 10,
-    "timestamp": 1766917166,
-    "numeric_id": null
-  },
-  {
-    "group_id": "unknown_group",
-    "history_count": 9,
-    "interval_seconds": 8,
-    "timestamp": 1766917174,
-    "numeric_id": null
-  },
-  {
-    "group_id": "unknown_group",
-    "history_count": 10,
-    "interval_seconds": 29,
-    "timestamp": 1766917203,
-    "numeric_id": null
-  },
-  {
-    "group_id": "unknown_group",
-    "history_count": 11,
-    "interval_seconds": 13,
-    "timestamp": 1766917216,
-    "numeric_id": null
-  },
-  {
-    "group_id": "unknown_group",
-    "history_count": 12,
-    "interval_seconds": 13,
-    "timestamp": 1766917229,
-    "numeric_id": null
-  },
-  {
-    "group_id": "unknown_group",
-    "history_count": 13,
-    "interval_seconds": 14,
-    "timestamp": 1766917243,
-    "numeric_id": null
-  },
-  {
-    "group_id": "unknown_group",
-    "history_count": 14,
-    "interval_seconds": 18,
-    "timestamp": 1766917261,
-    "numeric_id": null
-  },
-  {
-    "group_id": "unknown_group",
-    "history_count": 15,
-    "interval_seconds": 5,
-    "timestamp": 1766917266,
-    "numeric_id": null
-  },
-  {
-    "group_id": "unknown_group",
-    "history_count": 16,
-    "interval_seconds": 17,
-    "timestamp": 1766917283,
-    "numeric_id": null
-  },
-  {
-    "group_id": "unknown_group",
-    "history_count": 17,
-    "interval_seconds": 38,
-    "timestamp": 1766917321,
-    "numeric_id": null
-  },
-  {
-    "group_id": "unknown_group",
-    "history_count": 18,
-    "interval_seconds": 11,
-    "timestamp": 1766917332,
-    "numeric_id": null
-  },
-  {
-    "group_id": "unknown_group",
-    "history_count": 19,
-    "interval_seconds": 15,
-    "timestamp": 1766917347,
-    "numeric_id": null
-  },
-  {
-    "group_id": "unknown_group",
-    "history_count": 20,
-    "interval_seconds": 10,
-    "timestamp": 1766917357,
-    "numeric_id": null
-  },
-  {
-    "group_id": "unknown_group",
-    "history_count": 21,
-    "interval_seconds": 5,
-    "timestamp": 1766917362,
-    "numeric_id": null
-  },
-  {
-    "group_id": "unknown_group",
-    "history_count": 22,
-    "interval_seconds": 5,
-    "timestamp": 1766917367,
-    "numeric_id": null
-  },
-  {
-    "group_id": "unknown_group",
-    "history_count": 23,
-    "interval_seconds": 6,
-    "timestamp": 1766917373,
-    "numeric_id": null
-  },
-  {
-    "group_id": "unknown_group",
-    "history_count": 24,
-    "interval_seconds": 5,
-    "timestamp": 1766917378,
-    "numeric_id": null
-  },
-  {
-    "group_id": "unknown_group",
-    "history_count": 25,
-    "interval_seconds": 7,
-    "timestamp": 1766917385,
-    "numeric_id": null
-  },
-  {
-    "group_id": "unknown_group",
-    "history_count": 26,
-    "interval_seconds": 25,
-    "timestamp": 1766917410,
-    "numeric_id": null
-  },
-  {
-    "group_id": "unknown_group",
-    "history_count": 27,
-    "interval_seconds": 5,
-    "timestamp": 1766917415,
-    "numeric_id": null
-  },
-  {
-    "group_id": "unknown_group",
-    "history_count": 28,
-    "interval_seconds": 23,
-    "timestamp": 1766917438,
-    "numeric_id": null
-  },
-  {
-    "group_id": "unknown_group",
-    "history_count": 29,
-    "interval_seconds": 12,
-    "timestamp": 1766917450,
-    "numeric_id": null
-  },
-  {
-    "group_id": "unknown_group",
-    "history_count": 30,
-    "interval_seconds": 7,
-    "timestamp": 1766917457,
-    "numeric_id": null
-  },
-  {
-    "group_id": "unknown_group",
-    "history_count": 31,
-    "interval_seconds": 4,
-    "timestamp": 1766917461,
-    "numeric_id": null
-  },
-  {
-    "group_id": "unknown_group",
-    "history_count": 32,
-    "interval_seconds": 5,
-    "timestamp": 1766917466,
-    "numeric_id": null
-  },
-  {
-    "group_id": "unknown_group",
-    "history_count": 33,
-    "interval_seconds": 4,
-    "timestamp": 1766917470,
-    "numeric_id": null
-  },
-  {
-    "group_id": "unknown_group",
-    "history_count": 34,
-    "interval_seconds": 17,
-    "timestamp": 1766917487,
-    "numeric_id": null
-  },
-  {
-    "group_id": "unknown_group",
-    "history_count": 35,
-    "interval_seconds": 13,
-    "timestamp": 1766917500,
-    "numeric_id": null
-  },
-  {
-    "group_id": "unknown_group",
-    "history_count": 36,
-    "interval_seconds": 15,
-    "timestamp": 1766917515,
-    "numeric_id": null
-  },
-  {
-    "group_id": "unknown_group",
-    "history_count": 37,
-    "interval_seconds": 13,
-    "timestamp": 1766917528,
-    "numeric_id": null
-  },
-  {
-    "group_id": "unknown_group",
-    "history_count": 38,
-    "interval_seconds": 10,
-    "timestamp": 1766917538,
-    "numeric_id": null
-  },
-  {
-    "group_id": "unknown_group",
-    "history_count": 39,
-    "interval_seconds": 10,
-    "timestamp": 1766917548,
-    "numeric_id": null
-  },
-  {
-    "group_id": "unknown_group",
-    "history_count": 40,
-    "interval_seconds": 9,
-    "timestamp": 1766917557,
-    "numeric_id": null
-  },
-  {
-    "group_id": "unknown_group",
-    "history_count": 41,
-    "interval_seconds": 10,
-    "timestamp": 1766917567,
-    "numeric_id": null
-  },
-  {
-    "group_id": "unknown_group",
-    "history_count": 42,
-    "interval_seconds": 4,
-    "timestamp": 1766917571,
-    "numeric_id": null
-  },
-  {
-    "group_id": "unknown_group",
-    "history_count": 43,
-    "interval_seconds": 7,
-    "timestamp": 1766917578,
-    "numeric_id": null
-  },
-  {
-    "group_id": "unknown_group",
-    "history_count": 44,
-    "interval_seconds": 5,
-    "timestamp": 1766917583,
-    "numeric_id": null
-  },
-  {
-    "group_id": "unknown_group",
-    "history_count": 45,
-    "interval_seconds": 4,
-    "timestamp": 1766917587,
-    "numeric_id": null
-  },
-  {
-    "group_id": "unknown_group",
-    "history_count": 46,
-    "interval_seconds": 11,
-    "timestamp": 1766917598,
-    "numeric_id": null
-  },
-  {
-    "group_id": "unknown_group",
-    "history_count": 47,
-    "interval_seconds": 15,
-    "timestamp": 1766917613,
-    "numeric_id": null
-  },
-  {
-    "group_id": "unknown_group",
-    "history_count": 48,
-    "interval_seconds": 5,
-    "timestamp": 1766917618,
-    "numeric_id": null
-  },
-  {
-    "group_id": "unknown_group",
-    "history_count": 49,
-    "interval_seconds": 5,
-    "timestamp": 1766917623,
-    "numeric_id": null
-  },
-  {
-    "group_id": "unknown_group",
-    "history_count": 50,
-    "interval_seconds": 6,
-    "timestamp": 1766917629,
-    "numeric_id": null
-  },
-  {
-    "group_id": "unknown_group",
-    "history_count": 51,
-    "interval_seconds": 5,
-    "timestamp": 1766917634,
-    "numeric_id": null
-  },
-  {
-    "group_id": "unknown_group",
-    "history_count": 52,
-    "interval_seconds": 12,
-    "timestamp": 1766917646,
-    "numeric_id": null
-  },
-  {
-    "group_id": "unknown_group",
-    "history_count": 53,
-    "interval_seconds": 7,
-    "timestamp": 1766917653,
-    "numeric_id": null
-  },
-  {
-    "group_id": "unknown_group",
-    "history_count": 54,
-    "interval_seconds": 16,
-    "timestamp": 1766917669,
-    "numeric_id": null
-  },
-  {
-    "group_id": "unknown_group",
-    "history_count": 55,
-    "interval_seconds": 12,
-    "timestamp": 1766917681,
-    "numeric_id": null
-  },
-  {
-    "group_id": "unknown_group",
-    "history_count": 56,
-    "interval_seconds": 7,
-    "timestamp": 1766917688,
-    "numeric_id": null
-  },
-  {
-    "group_id": "unknown_group",
-    "history_count": 57,
-    "interval_seconds": 6,
-    "timestamp": 1766917694,
-    "numeric_id": null
-  },
-  {
-    "group_id": "unknown_group",
-    "history_count": 58,
-    "interval_seconds": 3,
-    "timestamp": 1766917697,
-    "numeric_id": null
-  },
-  {
-    "group_id": "unknown_group",
-    "history_count": 59,
-    "interval_seconds": 8,
-    "timestamp": 1766917705,
-    "numeric_id": null
-  },
-  {
-    "group_id": "unknown_group",
-    "history_count": 60,
-    "interval_seconds": 4,
-    "timestamp": 1766917709,
-    "numeric_id": null
-  },
-  {
-    "group_id": "unknown_group",
-    "history_count": 61,
-    "interval_seconds": 14,
-    "timestamp": 1766917723,
-    "numeric_id": null
-  },
-  {
-    "group_id": "unknown_group",
-    "history_count": 62,
-    "interval_seconds": 22,
-    "timestamp": 1766917745,
-    "numeric_id": null
-  },
-  {
-    "group_id": "unknown_group",
-    "history_count": 63,
-    "interval_seconds": 4,
-    "timestamp": 1766917749,
-    "numeric_id": null
-  },
-  {
-    "group_id": "unknown_group",
-    "history_count": 64,
-    "interval_seconds": 3,
-    "timestamp": 1766917752,
-    "numeric_id": null
-  },
-  {
-    "group_id": "unknown_group",
-    "history_count": 65,
-    "interval_seconds": 3,
-    "timestamp": 1766917755,
-    "numeric_id": null
-  },
-  {
-    "group_id": "unknown_group",
-    "history_count": 66,
-    "interval_seconds": 32,
-    "timestamp": 1766917787,
-    "numeric_id": null
-  },
-  {
-    "group_id": "unknown_group",
-    "history_count": 67,
-    "interval_seconds": 4,
-    "timestamp": 1766917791,
-    "numeric_id": null
-  },
-  {
-    "group_id": "unknown_group",
-    "history_count": 68,
-    "interval_seconds": 9,
-    "timestamp": 1766917800,
-    "numeric_id": null
-  },
-  {
-    "group_id": "unknown_group",
-    "history_count": 69,
-    "interval_seconds": 6,
-    "timestamp": 1766917806,
-    "numeric_id": null
-  },
-  {
-    "group_id": "unknown_group",
-    "history_count": 70,
-    "interval_seconds": 38,
-    "timestamp": 1766917844,
-    "numeric_id": null
-  },
-  {
-    "group_id": "unknown_group",
-    "history_count": 71,
-    "interval_seconds": 10,
-    "timestamp": 1766917854,
-    "numeric_id": null
-  },
-  {
-    "group_id": "unknown_group",
-    "history_count": 72,
-    "interval_seconds": 10,
-    "timestamp": 1766917864,
-    "numeric_id": null
-  },
-  {
-    "group_id": "unknown_group",
-    "history_count": 73,
-    "interval_seconds": 11,
-    "timestamp": 1766917875,
-    "numeric_id": null
-  },
-  {
-    "group_id": "unknown_group",
-    "history_count": 74,
-    "interval_seconds": 9,
-    "timestamp": 1766917884,
-    "numeric_id": null
-  },
-  {
-    "group_id": "unknown_group",
-    "history_count": 75,
-    "interval_seconds": 4,
-    "timestamp": 1766917888,
-    "numeric_id": null
-  },
-  {
-    "group_id": "unknown_group",
-    "history_count": 76,
-    "interval_seconds": 3,
-    "timestamp": 1766917891,
-    "numeric_id": null
-  },
-  {
-    "group_id": "unknown_group",
-    "history_count": 77,
-    "interval_seconds": 10,
-    "timestamp": 1766917901,
-    "numeric_id": null
-  },
-  {
-    "group_id": "unknown_group",
-    "history_count": 78,
-    "interval_seconds": 4,
-    "timestamp": 1766917905,
-    "numeric_id": null
-  },
-  {
-    "group_id": "unknown_group",
-    "history_count": 79,
-    "interval_seconds": 3,
-    "timestamp": 1766917908,
-    "numeric_id": null
-  },
-  {
-    "group_id": "unknown_group",
-    "history_count": 80,
-    "interval_seconds": 4,
-    "timestamp": 1766917912,
-    "numeric_id": null
-  },
-  {
-    "group_id": "unknown_group",
-    "history_count": 81,
-    "interval_seconds": 3,
-    "timestamp": 1766917915,
-    "numeric_id": null
-  },
-  {
-    "group_id": "unknown_group",
-    "history_count": 82,
-    "interval_seconds": 2,
-    "timestamp": 1766917917,
-    "numeric_id": null
-  },
-  {
-    "group_id": "unknown_group",
-    "history_count": 83,
-    "interval_seconds": 7,
-    "timestamp": 1766917924,
-    "numeric_id": null
-  },
-  {
-    "group_id": "unknown_group",
-    "history_count": 84,
-    "interval_seconds": 4,
-    "timestamp": 1766917928,
-    "numeric_id": null
-  },
-  {
-    "group_id": "unknown_group",
-    "history_count": 85,
-    "interval_seconds": 6,
-    "timestamp": 1766917934,
-    "numeric_id": null
-  },
-  {
-    "group_id": "unknown_group",
-    "history_count": 86,
-    "interval_seconds": 4,
-    "timestamp": 1766917938,
-    "numeric_id": null
-  },
-  {
-    "group_id": "unknown_group",
-    "history_count": 87,
-    "interval_seconds": 5,
-    "timestamp": 1766917943,
-    "numeric_id": null
-  },
-  {
-    "group_id": "unknown_group",
-    "history_count": 88,
-    "interval_seconds": 6,
-    "timestamp": 1766917949,
-    "numeric_id": null
-  },
-  {
-    "group_id": "unknown_group",
-    "history_count": 89,
-    "interval_seconds": 5,
-    "timestamp": 1766917954,
-    "numeric_id": null
-  },
-  {
-    "group_id": "unknown_group",
-    "history_count": 90,
-    "interval_seconds": 56,
-    "timestamp": 1766918010,
-    "numeric_id": null
-  },
-  {
-    "group_id": "unknown_group",
-    "history_count": 91,
-    "interval_seconds": 3,
-    "timestamp": 1766918013,
-    "numeric_id": null
-  },
-  {
-    "group_id": "unknown_group",
-    "history_count": 92,
-    "interval_seconds": 1236,
-    "timestamp": 1766919249,
-    "numeric_id": null
-  },
-  {
-    "group_id": "unknown_group",
-    "history_count": 93,
-    "interval_seconds": 118,
-    "timestamp": 1766919367,
-    "numeric_id": null
-  },
-  {
-    "group_id": "unknown_group",
-    "history_count": 94,
-    "interval_seconds": 1451,
-    "timestamp": 1766920818,
-    "numeric_id": null
-  },
-  {
-    "group_id": "unknown_group",
-    "history_count": 95,
-    "interval_seconds": 5,
-    "timestamp": 1766920823,
-    "numeric_id": null
-  },
-  {
-    "group_id": "unknown_group",
-    "history_count": 96,
-    "interval_seconds": 12,
-    "timestamp": 1766920835,
-    "numeric_id": null
-  },
-  {
-    "group_id": "unknown_group",
-    "history_count": 97,
-    "interval_seconds": 36,
-    "timestamp": 1766920871,
-    "numeric_id": null
-  },
-  {
-    "group_id": "unknown_group",
-    "history_count": 98,
-    "interval_seconds": 47719,
-    "timestamp": 1766968590,
-    "numeric_id": null
-  },
-  {
-    "group_id": "unknown_group",
-    "history_count": 99,
-    "interval_seconds": 16,
-    "timestamp": 1766968606,
-    "numeric_id": null
-  },
-  {
-    "group_id": "unknown_group",
-    "history_count": 100,
-    "interval_seconds": 6,
-    "timestamp": 1766968612,
-    "numeric_id": null
-  },
-  {
-    "group_id": "unknown_group",
-    "history_count": 101,
-    "interval_seconds": 6,
-    "timestamp": 1766968618,
-    "numeric_id": null
-  },
-  {
-    "group_id": "unknown_group",
-    "history_count": 102,
-    "interval_seconds": 363692,
-    "timestamp": 1767332310,
-    "numeric_id": null
-  },
-  {
-    "group_id": "unknown_group",
-    "history_count": 103,
-    "interval_seconds": 8,
-    "timestamp": 1767332318,
-    "numeric_id": null
-  },
-  {
-    "group_id": "unknown_group",
-    "history_count": 104,
-    "interval_seconds": 4,
-    "timestamp": 1767332322,
-    "numeric_id": null
-  },
-  {
-    "item_id": "leap/1351-1400-10-53c4041d-7b34-4b44-ab94-2d1315bc575b",
+    "item_id": "leap/1351-1400-79-e65e876f-bbf5-4f0b-baed-6783ef088aba",
     "group_id": "leap/1351-1400",
     "result": 1,
     "history_count": 1,
-    "interval_seconds": 34,
-    "timestamp": 1767365257,
+    "interval_seconds": 128,
+    "timestamp": 1767368811,
+    "numeric_id": 157
+  },
+  {
+    "item_id": "leap/1351-1400-79-e65e876f-bbf5-4f0b-baed-6783ef088aba",
+    "group_id": "leap/1351-1400",
+    "result": 1,
+    "history_count": 2,
+    "interval_seconds": 26,
+    "timestamp": 1767368837,
+    "numeric_id": 157
+  },
+  {
+    "item_id": "leap/1351-1400-79-e65e876f-bbf5-4f0b-baed-6783ef088aba",
+    "group_id": "leap/1351-1400",
+    "result": 1,
+    "history_count": 3,
+    "interval_seconds": 167,
+    "timestamp": 1767369004,
+    "numeric_id": 157
+  },
+  {
+    "item_id": "leap/1351-1400-79-e65e876f-bbf5-4f0b-baed-6783ef088aba",
+    "group_id": "leap/1351-1400",
+    "result": 1,
+    "history_count": 4,
+    "interval_seconds": 60,
+    "timestamp": 1767369064,
+    "numeric_id": 157
+  },
+  {
+    "item_id": "leap/1351-1400-79-e65e876f-bbf5-4f0b-baed-6783ef088aba",
+    "group_id": "leap/1351-1400",
+    "result": 1,
+    "history_count": 5,
+    "interval_seconds": 324,
+    "timestamp": 1767369388,
+    "numeric_id": 157
+  },
+  {
+    "item_id": "leap/1351-1400-27-c97b4c01-5a29-45c6-872e-838027be7fc0",
+    "group_id": "leap/1351-1400",
+    "result": 1,
+    "history_count": 1,
+    "interval_seconds": 653,
+    "timestamp": 1767369343,
+    "numeric_id": 105
+  },
+  {
+    "item_id": "leap/1351-1400-68-2d467b1a-40d4-407b-b0fe-f4417c03317f",
+    "group_id": "leap/1351-1400",
+    "result": 1,
+    "history_count": 1,
+    "interval_seconds": 225,
+    "timestamp": 1767368926,
+    "numeric_id": 146
+  },
+  {
+    "item_id": "leap/1351-1400-68-2d467b1a-40d4-407b-b0fe-f4417c03317f",
+    "group_id": "leap/1351-1400",
+    "result": 1,
+    "history_count": 2,
+    "interval_seconds": 343,
+    "timestamp": 1767369269,
+    "numeric_id": 146
+  },
+  {
+    "item_id": "leap/1351-1400-75-0e3c307d-ad65-4aff-84c6-95bab52e748c",
+    "group_id": "leap/1351-1400",
+    "result": 1,
+    "history_count": 1,
+    "interval_seconds": 638,
+    "timestamp": 1767369350,
+    "numeric_id": 153
+  },
+  {
+    "item_id": "leap/1351-1400-58-7b12d886-f202-4a65-8765-5f7c37301628",
+    "group_id": "leap/1351-1400",
+    "result": 1,
+    "history_count": 1,
+    "interval_seconds": 501,
+    "timestamp": 1767369224,
+    "numeric_id": 136
+  },
+  {
+    "item_id": "leap/1351-1400-58-7b12d886-f202-4a65-8765-5f7c37301628",
+    "group_id": "leap/1351-1400",
+    "result": 1,
+    "history_count": 2,
+    "interval_seconds": 149,
+    "timestamp": 1767369373,
+    "numeric_id": 136
+  },
+  {
+    "item_id": "leap/1351-1400-71-306ef6b5-6e5a-44c9-be77-26fc436f5947",
+    "group_id": "leap/1351-1400",
+    "result": 0,
+    "history_count": 1,
+    "interval_seconds": 449,
+    "timestamp": 1767369187,
+    "numeric_id": 149
+  },
+  {
+    "item_id": "leap/1351-1400-71-306ef6b5-6e5a-44c9-be77-26fc436f5947",
+    "group_id": "leap/1351-1400",
+    "result": 1,
+    "history_count": 2,
+    "interval_seconds": 32,
+    "timestamp": 1767369219,
+    "numeric_id": 149
+  },
+  {
+    "item_id": "leap/1351-1400-5-1444fe71-57e4-4611-bcfa-bbc2c0be51a3",
+    "group_id": "leap/1351-1400",
+    "result": 0,
+    "history_count": 1,
+    "interval_seconds": 488,
+    "timestamp": 1767369245,
+    "numeric_id": 83
+  },
+  {
+    "item_id": "leap/1351-1400-5-1444fe71-57e4-4611-bcfa-bbc2c0be51a3",
+    "group_id": "leap/1351-1400",
+    "result": 1,
+    "history_count": 2,
+    "interval_seconds": 124,
+    "timestamp": 1767369369,
+    "numeric_id": 83
+  },
+  {
+    "item_id": "leap/1351-1400-19-6b2cbeca-a733-431c-b0ac-07fd3f89d282",
+    "group_id": "leap/1351-1400",
+    "result": 1,
+    "history_count": 1,
+    "interval_seconds": 409,
+    "timestamp": 1767369175,
+    "numeric_id": 97
+  },
+  {
+    "item_id": "leap/1351-1400-0-0db23b43-53e3-467e-91fd-ba7653853bcd",
+    "group_id": "leap/1351-1400",
+    "result": 1,
+    "history_count": 1,
+    "interval_seconds": 66,
+    "timestamp": 1767368842,
+    "numeric_id": 78
+  },
+  {
+    "item_id": "leap/1351-1400-0-0db23b43-53e3-467e-91fd-ba7653853bcd",
+    "group_id": "leap/1351-1400",
+    "result": 1,
+    "history_count": 2,
+    "interval_seconds": 385,
+    "timestamp": 1767369227,
+    "numeric_id": 78
+  },
+  {
+    "item_id": "leap/1351-1400-0-0db23b43-53e3-467e-91fd-ba7653853bcd",
+    "group_id": "leap/1351-1400",
+    "result": 1,
+    "history_count": 3,
+    "interval_seconds": 179,
+    "timestamp": 1767369406,
+    "numeric_id": 78
+  },
+  {
+    "item_id": "leap/1351-1400-46-082ad45e-ec09-44bb-a1c2-6e2315de746b",
+    "group_id": "leap/1351-1400",
+    "result": 1,
+    "history_count": 1,
+    "interval_seconds": 21,
+    "timestamp": 1767368806,
+    "numeric_id": 124
+  },
+  {
+    "item_id": "leap/1351-1400-46-082ad45e-ec09-44bb-a1c2-6e2315de746b",
+    "group_id": "leap/1351-1400",
+    "result": 1,
+    "history_count": 2,
+    "interval_seconds": 352,
+    "timestamp": 1767369158,
+    "numeric_id": 124
+  },
+  {
+    "item_id": "leap/1351-1400-46-082ad45e-ec09-44bb-a1c2-6e2315de746b",
+    "group_id": "leap/1351-1400",
+    "result": 1,
+    "history_count": 3,
+    "interval_seconds": 51,
+    "timestamp": 1767369209,
+    "numeric_id": 124
+  },
+  {
+    "item_id": "leap/1351-1400-7-52ebd4f7-09d5-4bce-84cd-ebc8a7bb6ba3",
+    "group_id": "leap/1351-1400",
+    "result": 1,
+    "history_count": 1,
+    "interval_seconds": 47,
+    "timestamp": 1767368845,
+    "numeric_id": 85
+  },
+  {
+    "item_id": "leap/1351-1400-7-52ebd4f7-09d5-4bce-84cd-ebc8a7bb6ba3",
+    "group_id": "leap/1351-1400",
+    "result": 1,
+    "history_count": 2,
+    "interval_seconds": 242,
+    "timestamp": 1767369087,
+    "numeric_id": 85
+  },
+  {
+    "item_id": "leap/1351-1400-7-52ebd4f7-09d5-4bce-84cd-ebc8a7bb6ba3",
+    "group_id": "leap/1351-1400",
+    "result": 1,
+    "history_count": 3,
+    "interval_seconds": 266,
+    "timestamp": 1767369353,
+    "numeric_id": 85
+  },
+  {
+    "item_id": "leap/1351-1400-76-834e79d8-b119-4487-b930-2d340bd875e9",
+    "group_id": "leap/1351-1400",
+    "result": 1,
+    "history_count": 1,
+    "interval_seconds": 538,
+    "timestamp": 1767369357,
+    "numeric_id": 154
+  },
+  {
+    "item_id": "leap/1351-1400-77-7da8a64c-03c3-4c47-9482-d0358ffb44db",
+    "group_id": "leap/1351-1400",
+    "result": 1,
+    "history_count": 1,
+    "interval_seconds": 140,
+    "timestamp": 1767368973,
+    "numeric_id": 155
+  },
+  {
+    "item_id": "leap/1351-1400-77-7da8a64c-03c3-4c47-9482-d0358ffb44db",
+    "group_id": "leap/1351-1400",
+    "result": 1,
+    "history_count": 2,
+    "interval_seconds": 120,
+    "timestamp": 1767369093,
+    "numeric_id": 155
+  },
+  {
+    "item_id": "leap/1351-1400-77-7da8a64c-03c3-4c47-9482-d0358ffb44db",
+    "group_id": "leap/1351-1400",
+    "result": 1,
+    "history_count": 3,
+    "interval_seconds": 101,
+    "timestamp": 1767369194,
+    "numeric_id": 155
+  },
+  {
+    "item_id": "leap/1351-1400-77-7da8a64c-03c3-4c47-9482-d0358ffb44db",
+    "group_id": "leap/1351-1400",
+    "result": 1,
+    "history_count": 4,
+    "interval_seconds": 167,
+    "timestamp": 1767369361,
+    "numeric_id": 155
+  },
+  {
+    "item_id": "leap/1351-1400-55-b5afc3b5-363d-4109-b55c-5c7702a1bb23",
+    "group_id": "leap/1351-1400",
+    "result": 1,
+    "history_count": 1,
+    "interval_seconds": 123,
+    "timestamp": 1767369058,
+    "numeric_id": 133
+  },
+  {
+    "item_id": "leap/1351-1400-55-b5afc3b5-363d-4109-b55c-5c7702a1bb23",
+    "group_id": "leap/1351-1400",
+    "result": 1,
+    "history_count": 2,
+    "interval_seconds": 94,
+    "timestamp": 1767369152,
+    "numeric_id": 133
+  },
+  {
+    "item_id": "leap/1351-1400-55-b5afc3b5-363d-4109-b55c-5c7702a1bb23",
+    "group_id": "leap/1351-1400",
+    "result": 1,
+    "history_count": 3,
+    "interval_seconds": 47,
+    "timestamp": 1767369199,
+    "numeric_id": 133
+  },
+  {
+    "item_id": "leap/1351-1400-65-bef054dd-db87-4c83-809c-95b38eb8b8fd",
+    "group_id": "leap/1351-1400",
+    "result": 1,
+    "history_count": 1,
+    "interval_seconds": 124,
+    "timestamp": 1767369067,
+    "numeric_id": 143
+  },
+  {
+    "item_id": "leap/1351-1400-65-bef054dd-db87-4c83-809c-95b38eb8b8fd",
+    "group_id": "leap/1351-1400",
+    "result": 1,
+    "history_count": 2,
+    "interval_seconds": 271,
+    "timestamp": 1767369338,
+    "numeric_id": 143
+  },
+  {
+    "item_id": "leap/1351-1400-41-55a6f80c-42b6-4d91-96d5-770a4105a82c",
+    "group_id": "leap/1351-1400",
+    "result": 1,
+    "history_count": 1,
+    "interval_seconds": 388,
+    "timestamp": 1767369335,
+    "numeric_id": 119
+  },
+  {
+    "item_id": "leap/1351-1400-63-0baa1914-d3b9-4e52-b443-00ff63ad2e15",
+    "group_id": "leap/1351-1400",
+    "result": 0,
+    "history_count": 1,
+    "interval_seconds": 109,
+    "timestamp": 1767369076,
+    "numeric_id": 141
+  },
+  {
+    "item_id": "leap/1351-1400-63-0baa1914-d3b9-4e52-b443-00ff63ad2e15",
+    "group_id": "leap/1351-1400",
+    "result": 1,
+    "history_count": 2,
+    "interval_seconds": 73,
+    "timestamp": 1767369149,
+    "numeric_id": 141
+  },
+  {
+    "item_id": "leap/1351-1400-37-d026d9d6-e0a2-4254-b30f-4d5363a6cc14",
+    "group_id": "leap/1351-1400",
+    "result": 1,
+    "history_count": 1,
+    "interval_seconds": 64,
+    "timestamp": 1767369049,
+    "numeric_id": 115
+  },
+  {
+    "item_id": "leap/1351-1400-70-2e445f80-f053-4b86-b7a2-43ca299ecb97",
+    "group_id": "leap/1351-1400",
+    "result": 1,
+    "history_count": 1,
+    "interval_seconds": 202,
+    "timestamp": 1767369202,
+    "numeric_id": 148
+  },
+  {
+    "item_id": "leap/1351-1400-29-4fbca034-b5bf-4f0b-8a33-368e0089fb73",
+    "group_id": "leap/1351-1400",
+    "result": 1,
+    "history_count": 1,
+    "interval_seconds": 139,
+    "timestamp": 1767369169,
+    "numeric_id": 107
+  },
+  {
+    "item_id": "leap/1351-1400-29-4fbca034-b5bf-4f0b-8a33-368e0089fb73",
+    "group_id": "leap/1351-1400",
+    "result": 1,
+    "history_count": 2,
+    "interval_seconds": 22,
+    "timestamp": 1767369191,
+    "numeric_id": 107
+  },
+  {
+    "item_id": "leap/1351-1400-29-4fbca034-b5bf-4f0b-8a33-368e0089fb73",
+    "group_id": "leap/1351-1400",
+    "result": 1,
+    "history_count": 3,
+    "interval_seconds": 201,
+    "timestamp": 1767369392,
+    "numeric_id": 107
+  },
+  {
+    "item_id": "leap/1351-1400-10-d64ba9fd-9a4c-40bc-a7af-4a437115987d",
+    "group_id": "leap/1351-1400",
+    "result": 1,
+    "history_count": 1,
+    "interval_seconds": 110,
+    "timestamp": 1767369145,
     "numeric_id": 88
+  },
+  {
+    "item_id": "leap/1351-1400-57-6d24aa29-8222-4500-9e71-c33708a31902",
+    "group_id": "leap/1351-1400",
+    "result": 1,
+    "history_count": 1,
+    "interval_seconds": 360,
+    "timestamp": 1767369404,
+    "numeric_id": 135
+  },
+  {
+    "item_id": "leap/1351-1400-28-8b9407b2-2ee2-4925-91cc-8291d3e98aea",
+    "group_id": "leap/1351-1400",
+    "result": 1,
+    "history_count": 1,
+    "interval_seconds": 123,
+    "timestamp": 1767369206,
+    "numeric_id": 106
+  },
+  {
+    "item_id": "leap/1351-1400-28-8b9407b2-2ee2-4925-91cc-8291d3e98aea",
+    "group_id": "leap/1351-1400",
+    "result": 1,
+    "history_count": 2,
+    "interval_seconds": 192,
+    "timestamp": 1767369398,
+    "numeric_id": 106
+  },
+  {
+    "item_id": "leap/1351-1400-11-71f7ea10-df89-4e8d-8634-3bce52ae0b56",
+    "group_id": "leap/1351-1400",
+    "result": 1,
+    "history_count": 1,
+    "interval_seconds": 22,
+    "timestamp": 1767369163,
+    "numeric_id": 89
+  },
+  {
+    "item_id": "leap/1351-1400-11-71f7ea10-df89-4e8d-8634-3bce52ae0b56",
+    "group_id": "leap/1351-1400",
+    "result": 1,
+    "history_count": 2,
+    "interval_seconds": 71,
+    "timestamp": 1767369234,
+    "numeric_id": 89
   }
 ]
