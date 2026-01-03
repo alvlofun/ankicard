@@ -333,6 +333,15 @@
     "numeric_id": 143
   },
   {
+    "item_id": "leap/1351-1400-65-bef054dd-db87-4c83-809c-95b38eb8b8fd",
+    "group_id": "leap/1351-1400",
+    "result": 1,
+    "history_count": 3,
+    "interval_seconds": 37198,
+    "timestamp": 1767406536,
+    "numeric_id": 143
+  },
+  {
     "item_id": "leap/1351-1400-41-55a6f80c-42b6-4d91-96d5-770a4105a82c",
     "group_id": "leap/1351-1400",
     "result": 1,
@@ -468,6 +477,15 @@
     "numeric_id": 89
   },
   {
+    "item_id": "leap/1351-1400-11-71f7ea10-df89-4e8d-8634-3bce52ae0b56",
+    "group_id": "leap/1351-1400",
+    "result": 1,
+    "history_count": 3,
+    "interval_seconds": 37160,
+    "timestamp": 1767406394,
+    "numeric_id": 89
+  },
+  {
     "item_id": "leap/1351-1400-54-eada8627-9d7d-49e5-8df9-cf544a0f9400",
     "group_id": "leap/1351-1400",
     "result": 0,
@@ -540,6 +558,15 @@
     "numeric_id": 162
   },
   {
+    "item_id": "leap/1351-1400-84-b91220ed-0db3-4460-a4c8-d5d0a265c58f",
+    "group_id": "leap/1351-1400",
+    "result": 1,
+    "history_count": 2,
+    "interval_seconds": 35187,
+    "timestamp": 1767406546,
+    "numeric_id": 162
+  },
+  {
     "item_id": "leap/1351-1400-82-f661df33-f089-4462-b7ef-58d832e927de",
     "group_id": "leap/1351-1400",
     "result": 1,
@@ -547,6 +574,33 @@
     "interval_seconds": 1146,
     "timestamp": 1767371353,
     "numeric_id": 160
+  },
+  {
+    "item_id": "leap/1351-1400-31-0e7a0f12-1ee7-4f49-aa86-e6635fd0e792",
+    "group_id": "leap/1351-1400",
+    "result": 1,
+    "history_count": 1,
+    "interval_seconds": 36170,
+    "timestamp": 1767406409,
+    "numeric_id": 109
+  },
+  {
+    "item_id": "leap/1351-1400-56-82f33c9b-7b76-4679-bd3f-f860cc1f13a9",
+    "group_id": "leap/1351-1400",
+    "result": 1,
+    "history_count": 1,
+    "interval_seconds": 36305,
+    "timestamp": 1767406558,
+    "numeric_id": 134
+  },
+  {
+    "item_id": "leap/1351-1400-56-82f33c9b-7b76-4679-bd3f-f860cc1f13a9",
+    "group_id": "leap/1351-1400",
+    "result": 1,
+    "history_count": 2,
+    "interval_seconds": 2,
+    "timestamp": 1767406560,
+    "numeric_id": 134
   },
   {
     "item_id": "leap/1351-1400-74-264dd817-b6bf-4c46-aa22-eca5bd1f31e3",
@@ -576,6 +630,15 @@
     "numeric_id": 131
   },
   {
+    "item_id": "leap/1351-1400-53-00b0fc52-ca7d-4854-b04d-9133101bee68",
+    "group_id": "leap/1351-1400",
+    "result": 1,
+    "history_count": 2,
+    "interval_seconds": 35151,
+    "timestamp": 1767406549,
+    "numeric_id": 131
+  },
+  {
     "item_id": "leap/1351-1400-33-0c339800-7c27-4d8d-aeb5-9bceae4fb89e",
     "group_id": "leap/1351-1400",
     "result": 1,
@@ -585,12 +648,30 @@
     "numeric_id": 111
   },
   {
+    "item_id": "leap/1351-1400-1-7891902b-e029-4069-a9e5-3d0241513ca9",
+    "group_id": "leap/1351-1400",
+    "result": 1,
+    "history_count": 1,
+    "interval_seconds": 36067,
+    "timestamp": 1767406400,
+    "numeric_id": 79
+  },
+  {
     "item_id": "leap/1351-1400-12-8fc8039c-035b-40b4-895d-0133614b8567",
     "group_id": "leap/1351-1400",
     "result": 0,
     "history_count": 1,
     "interval_seconds": 1040,
     "timestamp": 1767371379,
+    "numeric_id": 90
+  },
+  {
+    "item_id": "leap/1351-1400-12-8fc8039c-035b-40b4-895d-0133614b8567",
+    "group_id": "leap/1351-1400",
+    "result": 0,
+    "history_count": 2,
+    "interval_seconds": 35191,
+    "timestamp": 1767406570,
     "numeric_id": 90
   },
   {
@@ -612,6 +693,15 @@
     "numeric_id": 110
   },
   {
+    "item_id": "leap/1351-1400-26-cdac1367-bb1c-4145-b685-7c3840a4a0bf",
+    "group_id": "leap/1351-1400",
+    "result": 1,
+    "history_count": 1,
+    "interval_seconds": 36031,
+    "timestamp": 1767406564,
+    "numeric_id": 104
+  },
+  {
     "item_id": "leap/1351-1400-51-ce9645d2-3096-4edb-8658-9c1cdd5c4560",
     "group_id": "leap/1351-1400",
     "result": 1,
@@ -619,6 +709,15 @@
     "interval_seconds": 833,
     "timestamp": 1767371405,
     "numeric_id": 129
+  },
+  {
+    "item_id": "leap/1351-1400-6-46bd12df-6f7e-45d6-9f9c-e1fef329592d",
+    "group_id": "leap/1351-1400",
+    "result": 1,
+    "history_count": 1,
+    "interval_seconds": 35961,
+    "timestamp": 1767406542,
+    "numeric_id": 84
   },
   {
     "item_id": "leap/1351-1400-36-3a526ecd-2ba3-4714-a765-7fbb8901de3c",
@@ -646,6 +745,15 @@
     "interval_seconds": 754,
     "timestamp": 1767371365,
     "numeric_id": 159
+  },
+  {
+    "item_id": "leap/1351-1400-64-6d23ed13-ccb5-4922-9eac-60c05f05a5a4",
+    "group_id": "leap/1351-1400",
+    "result": 0,
+    "history_count": 1,
+    "interval_seconds": 35936,
+    "timestamp": 1767406554,
+    "numeric_id": 142
   },
   {
     "item_id": "leap/1351-1400-69-09665a7e-6534-4ba7-846b-3d0911f9d2f4",
