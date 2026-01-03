@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>暗記アプリ (Bayesian Model)</title>
+  <title>暗記アプリ v.0.1</title>
   
   <!-- Excel読み込み用ライブラリ (SheetJS) -->
   <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
@@ -675,17 +675,27 @@
       async init(cards) {
         this.cardsMap.clear();
         this.statsMap.clear();
-        cards.forEach(c => this.cardsMap.set(c.id, c));
+
+        // プレイ対象のカードIDをセットに保持
+        const activeCardIds = new Set();
+        cards.forEach(c => {
+            this.cardsMap.set(c.id, c);
+            activeCardIds.add(c.id);
+        });
 
         const db = await openDB();
         const tx = db.transaction("cardStats", "readonly");
         const store = tx.objectStore("cardStats");
         const allStats = await new Promise(r => { store.getAll().onsuccess = e => r(e.target.result); });
         
+        // 修正: 選択された問題群に含まれるカードの統計のみをロードする
         allStats.forEach(s => {
-            this.statsMap.set(s.cardId, s);
+            if (activeCardIds.has(s.cardId)) {
+                this.statsMap.set(s.cardId, s);
+            }
         });
         
+        // 統計が存在しないカード（新規など）について初期化
         cards.forEach(c => {
             if (!this.statsMap.has(c.id)) {
                 this.statsMap.set(c.id, new CardStats(c.id));
@@ -761,7 +771,6 @@
              learningCards.push(s);
         });
 
-        // --- ★★★ 追加箇所 START ★★★ ---
         // 低確率で通常のロジックを無視し、既習カード(learning / mastered)からランダム出題
         // CONFIG.RANDOM_REVIEW_CHANCE は 0.1 (10%) などを想定
         if (Math.random() < (CONFIG.RANDOM_REVIEW_CHANCE || 0.1)) {
@@ -773,7 +782,6 @@
                 return this.pickRandom(reviewCandidates);
             }
         }
-        // --- ★★★ 追加箇所 END ★★★ ---
 
 
         const likelyWrong = learningCards.filter(s => Math.random() > s.estimatedP);
