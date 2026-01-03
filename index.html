@@ -1085,6 +1085,18 @@
       const statsMap = new Map();
       allStats.forEach(s => statsMap.set(s.cardId, s));
 
+      // 状態カウントの集計
+      let newCount = 0;
+      let learningCount = 0;
+      let masteredCount = 0;
+
+      cards.forEach(card => {
+        const stats = statsMap.get(card.id) || new CardStats(card.id);
+        if (stats.state === "mastered") masteredCount++;
+        else if (stats.state === "learning") learningCount++;
+        else newCount++;
+      });
+
       appEl.innerHTML = "";
       appEl.appendChild(createBackButton(() => showPathSelection()));
 
@@ -1094,6 +1106,23 @@
       header.className = "list-header";
       header.textContent = `${title} (${cards.length}問)`;
       container.appendChild(header);
+
+      // ステータスカウントの表示エリア
+      const statsSummary = document.createElement("div");
+      statsSummary.style.display = "flex";
+      statsSummary.style.gap = "10px";
+      statsSummary.style.marginBottom = "20px";
+      statsSummary.style.padding = "10px";
+      statsSummary.style.background = "#f9f9f9";
+      statsSummary.style.borderRadius = "8px";
+      statsSummary.style.fontSize = "0.9rem";
+
+      statsSummary.innerHTML = `
+        <span style="color:#666; font-weight:bold;">New: ${newCount}</span>
+        <span style="color:#d97706; font-weight:bold;">Learning: ${learningCount}</span>
+        <span style="color:#16a34a; font-weight:bold;">Mastered: ${masteredCount}</span>
+      `;
+      container.appendChild(statsSummary);
 
       const now = Date.now();
 
